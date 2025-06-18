@@ -1,8 +1,10 @@
 package com.parkandcharge.chargingservice.model;
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
-public class ChargingStation {
+@Data
+public class Charging {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -1,6 +1,8 @@
 package com.parkandcharge.statisticsservice.model;
+import lombok.Data;
 
-public class StationStats {
+@Data
+public class Statistics {
     private Long stationId;
     private int totalBookings;
     private double totalEarnings;

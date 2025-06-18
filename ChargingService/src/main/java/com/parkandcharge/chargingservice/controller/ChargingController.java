@@ -9,25 +9,25 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/stations")
 @CrossOrigin
-public class ChargingStationController {
-    private final ChargingStationService stationService;
+public class ChargingController {
+    private final ChargingService stationService;
 
-    public ChargingStationController(ChargingStationService stationService) {
+    public ChargingController(ChargingService stationService) {
         this.stationService = stationService;
     }
 
     @GetMapping
-    public List<ChargingStation> getAllStations() {
+    public List<Charging> getAllStations() {
         return stationService.getAllStations();
     }
 
     @GetMapping("/{id}")
-    public Optional<ChargingStation> getStation(@PathVariable Long id) {
+    public Optional<Charging> getStation(@PathVariable Long id) {
         return stationService.getStation(id);
     }
 
     @PostMapping
-    public ChargingStation createStation(@RequestBody ChargingStation station) {
+    public Charging createStation(@RequestBody Charging station) {
         return stationService.createStation(station);
     }
 
@@ -37,12 +37,12 @@ public class ChargingStationController {
     }
 
     @GetMapping("/owner/{ownerId}")
-    public List<ChargingStation> getStationsByOwner(@PathVariable Long ownerId) {
+    public List<Charging> getStationsByOwner(@PathVariable Long ownerId) {
         return stationService.getStationsByOwner(ownerId);
     }
 
     @PutMapping("/{id}/status")
-    public ChargingStation setInUse(@PathVariable Long id, @RequestParam boolean inUse) {
+    public Charging setInUse(@PathVariable Long id, @RequestParam boolean inUse) {
         return stationService.setInUse(id, inUse);
     }
 }

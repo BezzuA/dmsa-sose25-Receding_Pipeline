@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ChargingStationRepository extends JpaRepository<ChargingStation, Long> {
-    List<ChargingStation> findByInUse(boolean inUse);
-    List<ChargingStation> findByOwnerId(Long ownerId);
+public interface ChargingRepository extends JpaRepository<Charging, Long> {
+    List<Charging> findByInUse(boolean inUse);
+    List<Charging> findByOwnerId(Long ownerId);
 }

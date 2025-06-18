@@ -7,22 +7,22 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ChargingStationService {
-    private final ChargingStationRepository stationRepo;
+public class ChargingService {
+    private final ChargingRepository stationRepo;
 
-    public ChargingStationService(ChargingStationRepository stationRepo) {
-        this.stationRepo = stationRepo;
+    public ChargingService(ChargingRepository stationRepository) {
+        this.stationRepo = stationRepository;
     }
 
-    public List<ChargingStation> getAllStations() {
+    public List<Charging> getAllStations() {
         return stationRepo.findAll();
     }
 
-    public Optional<ChargingStation> getStation(Long id) {
+    public Optional<Charging> getStation(Long id) {
         return stationRepo.findById(id);
     }
 
-    public ChargingStation createStation(ChargingStation station) {
+    public Charging createStation(Charging station) {
         return stationRepo.save(station);
     }
 
@@ -30,12 +30,12 @@ public class ChargingStationService {
         stationRepo.deleteById(id);
     }
 
-    public List<ChargingStation> getStationsByOwner(Long ownerId) {
+    public List<Charging> getStationsByOwner(Long ownerId) {
         return stationRepo.findByOwnerId(ownerId);
     }
 
-    public ChargingStation setInUse(Long id, boolean inUse) {
-        ChargingStation station = stationRepo.findById(id).orElseThrow();
+    public Charging setInUse(Long id, boolean inUse) {
+        Charging station = stationRepo.findById(id).orElseThrow();
         station.setInUse(inUse);
         return stationRepo.save(station);
     }

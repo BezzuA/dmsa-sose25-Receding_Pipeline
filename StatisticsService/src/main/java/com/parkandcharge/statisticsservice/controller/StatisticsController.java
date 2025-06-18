@@ -16,12 +16,12 @@ public class StatisticsController {
     }
 
     @GetMapping("/station/{stationId}")
-    public StationStats getStationStats(@PathVariable Long stationId) {
+    public Statistics getStationStats(@PathVariable Long stationId) {
         return statisticsService.getStationStats(stationId);
     }
 
     @GetMapping
-    public List<StationStats> getAllStats() {
+    public List<Statistics> getAllStats() {
         return statisticsService.getAllStats();
     }
 }

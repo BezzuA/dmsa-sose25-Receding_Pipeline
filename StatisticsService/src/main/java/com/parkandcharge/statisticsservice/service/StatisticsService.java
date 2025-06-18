@@ -7,18 +7,18 @@ import java.util.*;
 @Service
 public class StatisticsService {
 
-    public StationStats getStationStats(Long stationId) {
+    public Statistics getStationStats(Long stationId) {
         // Mock example data
-        StationStats stats = new StationStats();
+        Statistics stats = new Statistics();
         stats.setStationId(stationId);
         stats.setTotalBookings(new Random().nextInt(100)); // random bookings
         stats.setTotalEarnings(stats.getTotalBookings() * 5.0); // e.g., $5 per booking
         return stats;
     }
 
-    public List<StationStats> getAllStats() {
+    public List<Statistics> getAllStats() {
         // Mock a few stations
-        List<StationStats> statsList = new ArrayList<>();
+        List<Statistics> statsList = new ArrayList<>();
         for (long i = 1; i <= 3; i++) {
             statsList.add(getStationStats(i));
         }
