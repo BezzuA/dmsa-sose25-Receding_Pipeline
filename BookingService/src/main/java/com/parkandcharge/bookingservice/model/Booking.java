@@ -1,4 +1,5 @@
 package com.parkandcharge.bookingservice.model;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.Data;
@@ -15,7 +16,8 @@ public class Booking {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private double amount;
-    private String status; // e.g., "BOOKED", "CANCELLED"
 
-    // Getters & Setters
+    @Enumerated(EnumType.STRING)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private BookingStatus status = BookingStatus.PENDING;
 }

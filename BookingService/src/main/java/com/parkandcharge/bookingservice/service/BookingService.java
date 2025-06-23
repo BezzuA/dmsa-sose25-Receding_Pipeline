@@ -1,5 +1,6 @@
 package com.parkandcharge.bookingservice.service;
 import com.parkandcharge.bookingservice.model.Booking;
+import com.parkandcharge.bookingservice.model.BookingStatus;
 import com.parkandcharge.bookingservice.repository.BookingRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -23,14 +24,27 @@ public class BookingService {
 
     public Booking createBooking(Booking booking) {
         // Here, you’d check station/user availability, but for mockup, just save
-        booking.setStatus("BOOKED");
+        booking.setStatus(BookingStatus.PENDING);
         return bookingRepository.save(booking);
+    }
+
+    public List<Booking> getBookingsByUserId(Long userId) {
+        return bookingRepository.findByUserId(userId);
     }
 
     public void cancelBooking(Long id) {
         bookingRepository.findById(id).ifPresent(booking -> {
-            booking.setStatus("CANCELLED");
+            booking.setStatus(BookingStatus.CANCELLED);
             bookingRepository.save(booking);
         });
     }
+
+    public Booking completeBooking(Long id) {
+        Booking booking = getBooking(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
+
+        booking.setStatus(BookingStatus.COMPLETED);
+        return bookingRepository.save(booking);
+    }
+
 }
