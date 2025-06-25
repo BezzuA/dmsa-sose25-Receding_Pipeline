@@ -10,6 +10,8 @@ import lombok.Data;
 @Data
 public class User {
 
+    private Double balance = 0.0;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,4 +25,7 @@ public class User {
 
     @NotBlank(message = "Password is required")
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 }

@@ -3,9 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/BookingService/park-and-charge-platform.BookingService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/BookingService/park-and-charge-platform.BookingService.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ChargingService/park-and-charge-platform.ChargingService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ChargingService/park-and-charge-platform.ChargingService.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/PaymentService/park-and-charge-platform.PaymentService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/PaymentService/park-and-charge-platform.PaymentService.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/StatisticsService/park-and-charge-platform.StatisticsService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/StatisticsService/park-and-charge-platform.StatisticsService.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/UserService/park-and-charge-platform.UserService.main.iml" filepath="$PROJECT_DIR$/.idea/modules/UserService/park-and-charge-platform.UserService.main.iml" />
     </modules>
   </component>
 </project>

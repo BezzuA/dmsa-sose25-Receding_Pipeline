@@ -9,11 +9,33 @@
         </processorPath>
         <module name="park-and-charge-platform.BookingService.main" />
         <module name="park-and-charge-platform.ChargingService.main" />
-        <module name="park-and-charge-platform.PaymentService.main" />
+        <module name="com.parkandcharge.park-and-charge-platform.StatisticsService.main" />
         <module name="park-and-charge-platform.UserService.main" />
-        <module name="park-and-charge-platform.StatisticsService.main" />
+        <module name="com.parkandcharge.park-and-charge-platform.PaymentService.main" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="21" />
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="com.parkandcharge.park-and-charge-platform.PaymentService.main" options="-parameters" />
+      <module name="com.parkandcharge.park-and-charge-platform.StatisticsService.main" options="-parameters" />
+      <module name="park-and-charge-platform.BookingService" options="-parameters" />
+      <module name="park-and-charge-platform.BookingService.main" options="-parameters" />
+      <module name="park-and-charge-platform.BookingService.test" options="-parameters" />
+      <module name="park-and-charge-platform.ChargingService" options="-parameters" />
+      <module name="park-and-charge-platform.ChargingService.main" options="-parameters" />
+      <module name="park-and-charge-platform.ChargingService.test" options="-parameters" />
+      <module name="park-and-charge-platform.EurekaServer" options="-parameters" />
+      <module name="park-and-charge-platform.EurekaServer.main" options="-parameters" />
+      <module name="park-and-charge-platform.EurekaServer.test" options="-parameters" />
+      <module name="park-and-charge-platform.PaymentService" options="-parameters" />
+      <module name="park-and-charge-platform.PaymentService.test" options="-parameters" />
+      <module name="park-and-charge-platform.StatisticsService" options="-parameters" />
+      <module name="park-and-charge-platform.StatisticsService.test" options="-parameters" />
+      <module name="park-and-charge-platform.UserService" options="-parameters" />
+      <module name="park-and-charge-platform.UserService.main" options="-parameters" />
+      <module name="park-and-charge-platform.UserService.test" options="-parameters" />
+    </option>
   </component>
 </project>

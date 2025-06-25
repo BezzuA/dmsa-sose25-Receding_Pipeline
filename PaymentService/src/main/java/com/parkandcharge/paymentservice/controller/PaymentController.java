@@ -1,6 +1,7 @@
 package com.parkandcharge.paymentservice.controller;
 import com.parkandcharge.paymentservice.model.Payment;
 import com.parkandcharge.paymentservice.service.PaymentService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

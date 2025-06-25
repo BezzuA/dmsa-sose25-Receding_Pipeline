@@ -1,4 +1,5 @@
 package com.parkandcharge.userservice.service;
+import com.parkandcharge.userservice.dto.RegisterRequest;
 import com.parkandcharge.userservice.model.User;
 import com.parkandcharge.userservice.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -21,10 +22,17 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public User createUser(User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
+    public User createUser(RegisterRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
+
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+        user.setRole(request.getRole());
+
         return userRepository.save(user);
     }
 
@@ -44,5 +52,14 @@ public class UserService {
             user.setPassword(updatedUser.getPassword());
             return userRepository.save(user);
         });
+    }
+
+    public void deductBalance(Long userId, double amount) {
+        User user = userRepository.findById(userId).orElseThrow();
+        if (user.getBalance() < amount) {
+            throw new IllegalStateException("Insufficient balance");
+        }
+        user.setBalance(user.getBalance() - amount);
+        userRepository.save(user);
     }
 }

@@ -1,48 +1,50 @@
 package com.parkandcharge.chargingservice.controller;
+
 import com.parkandcharge.chargingservice.model.Charging;
 import com.parkandcharge.chargingservice.service.ChargingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/stations")
-@CrossOrigin
+@RequestMapping("/stations")
 public class ChargingController {
-    private final ChargingService stationService;
 
-    public ChargingController(ChargingService stationService) {
-        this.stationService = stationService;
-    }
+    @Autowired
+    private ChargingService chargingService;
 
     @GetMapping
-    public List<Charging> getAllStations() {
-        return stationService.getAllStations();
+    public ResponseEntity<List<Charging>> getAllStations() {
+        return ResponseEntity.ok(chargingService.getAllStations());
     }
 
     @GetMapping("/{id}")
-    public Optional<Charging> getStation(@PathVariable Long id) {
-        return stationService.getStation(id);
+    public ResponseEntity<Charging> getStation(@PathVariable Long id) {
+        return chargingService.getStation(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Charging createStation(@RequestBody Charging station) {
-        return stationService.createStation(station);
+    public ResponseEntity<Charging> create(@RequestBody Charging charging) {
+        return ResponseEntity.ok(chargingService.createStation(charging));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Charging> update(@PathVariable Long id, @RequestBody Charging updated) {
+        return ResponseEntity.ok(chargingService.updateStation(id, updated));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteStation(@PathVariable Long id) {
-        stationService.deleteStation(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        chargingService.deleteStation(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/owner/{ownerId}")
-    public List<Charging> getStationsByOwner(@PathVariable Long ownerId) {
-        return stationService.getStationsByOwner(ownerId);
-    }
-
-    @PutMapping("/{id}/status")
-    public Charging setInUse(@PathVariable Long id, @RequestParam boolean inUse) {
-        return stationService.setInUse(id, inUse);
+    public ResponseEntity<List<Charging>> getByOwner(@PathVariable Long ownerId) {
+        return ResponseEntity.ok(chargingService.getStationsByOwner(ownerId));
     }
 }
