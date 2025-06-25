@@ -1,0 +1,21 @@
+# Gradle build cache and state
+.gradle/
+
+# IDE files
+.idea/
+*.iml
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Java build output
+/build/
+/bin/
+/target/
+
+# VSCode settings
+.vscode/ 
