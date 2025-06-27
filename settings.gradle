@@ -1,2 +1,2 @@
 rootProject.name = 'park-and-charge-platform'
-include 'EurekaServer', 'BookingService', 'ChargingService', 'PaymentService', 'StatisticsService', 'UserService', 'ConfigServer'
+include 'EurekaServer', 'BookingService', 'ChargingService', 'PaymentService', 'StatisticsService', 'UserService', 'ConfigServer', 'GatewayService'

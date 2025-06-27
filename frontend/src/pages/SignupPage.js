@@ -13,7 +13,7 @@ function SignupPage({ onSignup }) {
     setError('');
     setSuccess(false);
     try {
-      await signup({ email, password, name });
+      await signup({ email, password, username: name });
       setSuccess(true);
       onSignup && onSignup();
     } catch (err) {
