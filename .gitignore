@@ -1,20 +1,22 @@
-# Node modules
-/node_modules
-/frontend/node_modules
+# Gradle build cache and state
+.gradle/
 
-# Build output
-/build
-/frontend/build
+# IDE files
+.idea/
+*.iml
 
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# OS files
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Environment files
-.env
-.env.* 
+# Logs
+*.log
+
+# Java build output
+/build/
+/bin/
+/target/
+ConfigServer/build/
+
+# VSCode settings
+.vscode/ 
