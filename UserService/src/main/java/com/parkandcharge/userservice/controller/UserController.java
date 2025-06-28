@@ -86,7 +86,7 @@ public class UserController {
         paymentPayload.put("amount", amount);
 
         // POST to PaymentService
-        String paymentUrl = "http://paymentservice/api/payments";
+        String paymentUrl = "http://payment-service/api/payments";
         PaymentDto paymentResponse = restTemplate.postForObject(paymentUrl, paymentPayload, PaymentDto.class);
 
         if (paymentResponse == null || !"PAID".equals(paymentResponse.getStatus())) {

@@ -65,14 +65,14 @@ public class BookingService {
 
         // Get the station info from ChargingService
         ChargingDto station = restTemplate.getForObject(
-                "http://chargingservice/stations/" + booking.getStationId(), ChargingDto.class);
+                "http://charging-service/api/charging/" + booking.getStationId(), ChargingDto.class);
 
         if (station == null) {
             throw new RuntimeException("Station not found");
         }
 
         // Credit the owner's balance
-        String topUpUrl = "http://userservice/api/users/" + station.getOwnerId() + "/topup?amount=" + booking.getAmount();
+        String topUpUrl = "http://user-service/api/users/" + station.getOwnerId() + "/topup?amount=" + booking.getAmount();
         restTemplate.postForObject(topUpUrl, null, Void.class);
 
         // Update booking status
@@ -83,7 +83,7 @@ public class BookingService {
     public List<ChargingDto> getAvailableStations(LocalDateTime start, LocalDateTime end) {
         List<Long> bookedIds = bookingRepository.findConflictingStationIds(start, end);
 
-        ChargingDto[] stations = restTemplate.getForObject("http://chargingservice/stations", ChargingDto[].class);
+        ChargingDto[] stations = restTemplate.getForObject("http://charging-service/api/charging", ChargingDto[].class);
 
         return Arrays.stream(stations)
                 .filter(station -> !bookedIds.contains(station.getId()))
@@ -97,7 +97,7 @@ public class BookingService {
             throw new IllegalStateException("Station is not available at this time");
         }
 
-        String url = "http://userservice/api/users/" + request.getUserId() + "/deduct?amount=" + request.getAmount();
+        String url = "http://user-service/api/users/" + request.getUserId() + "/deduct?amount=" + request.getAmount();
         restTemplate.postForObject(url, null, Void.class); // if 200 OK, it’s deducted
 
         // Save booking
