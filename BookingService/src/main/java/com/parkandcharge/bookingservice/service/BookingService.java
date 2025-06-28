@@ -5,6 +5,7 @@ import com.parkandcharge.bookingservice.model.Booking;
 import com.parkandcharge.bookingservice.model.BookingStatus;
 import com.parkandcharge.bookingservice.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,6 +22,12 @@ public class BookingService {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Value("${charging.service.url:http://charging-service}")
+    private String chargingServiceUrl;
+
+    @Value("${user.service.url:http://user-service}")
+    private String userServiceUrl;
+
     public BookingService(BookingRepository bookingRepository) {
         this.bookingRepository = bookingRepository;
     }
@@ -34,7 +41,7 @@ public class BookingService {
     }
 
     public Booking createBooking(Booking booking) {
-        // Here, you’d check station/user availability, but for mockup, just save
+        // Here, you'd check station/user availability, but for mockup, just save
         booking.setStatus(BookingStatus.PENDING);
         return bookingRepository.save(booking);
     }
@@ -49,13 +56,17 @@ public class BookingService {
                 throw new IllegalStateException("Only pending bookings can be cancelled.");
             }
 
-//            // Refund the user
-//            String url = "http://userservice/api/users/" + booking.getUserId() + "/add?amount=" + booking.getAmount();
-//            restTemplate.postForObject(url, null, Void.class);
+            // Refund the user
+            String refundUrl = userServiceUrl + "/api/users/" + booking.getUserId() + "/add?amount=" + booking.getAmount();
+            restTemplate.postForObject(refundUrl, null, Void.class);
 
             // Set status to CANCELLED
             booking.setStatus(BookingStatus.CANCELLED);
             bookingRepository.save(booking);
+
+            // Set payment status to CANCELLED in PaymentService
+            String paymentServiceUrl = "http://payment-service/api/payments/booking/" + booking.getId() + "/cancel";
+            restTemplate.postForObject(paymentServiceUrl, null, Void.class);
         });
     }
 
@@ -65,25 +76,46 @@ public class BookingService {
 
         // Get the station info from ChargingService
         ChargingDto station = restTemplate.getForObject(
-                "http://charging-service/api/charging/" + booking.getStationId(), ChargingDto.class);
+                chargingServiceUrl + "/api/charging/" + booking.getStationId(), ChargingDto.class);
 
         if (station == null) {
             throw new RuntimeException("Station not found");
         }
 
+        // Deduct from user
+        String deductUrl = userServiceUrl + "/api/users/" + booking.getUserId() + "/deduct?amount=" + booking.getAmount();
+        restTemplate.postForObject(deductUrl, null, Void.class);
+
         // Credit the owner's balance
-        String topUpUrl = "http://user-service/api/users/" + station.getOwnerId() + "/topup?amount=" + booking.getAmount();
+        String topUpUrl = userServiceUrl + "/api/users/" + station.getOwnerId() + "/topup?amount=" + booking.getAmount();
         restTemplate.postForObject(topUpUrl, null, Void.class);
+
+        // Create payment record for owner
+        String paymentServiceUrl = "http://payment-service/api/payments";
+        java.util.Map<String, Object> ownerPaymentRequest = new java.util.HashMap<>();
+        ownerPaymentRequest.put("userId", station.getOwnerId());
+        ownerPaymentRequest.put("amount", booking.getAmount());
+        ownerPaymentRequest.put("bookingId", booking.getId());
+        restTemplate.postForObject(paymentServiceUrl, ownerPaymentRequest, Void.class);
 
         // Update booking status
         booking.setStatus(BookingStatus.COMPLETED);
-        return bookingRepository.save(booking);
+        bookingRepository.save(booking);
+
+        // Create payment record in PaymentService
+        java.util.Map<String, Object> paymentRequest = new java.util.HashMap<>();
+        paymentRequest.put("userId", booking.getUserId());
+        paymentRequest.put("amount", booking.getAmount());
+        paymentRequest.put("bookingId", booking.getId());
+        restTemplate.postForObject(paymentServiceUrl, paymentRequest, Void.class);
+
+        return booking;
     }
 
     public List<ChargingDto> getAvailableStations(LocalDateTime start, LocalDateTime end) {
         List<Long> bookedIds = bookingRepository.findConflictingStationIds(start, end);
 
-        ChargingDto[] stations = restTemplate.getForObject("http://charging-service/api/charging", ChargingDto[].class);
+        ChargingDto[] stations = restTemplate.getForObject(chargingServiceUrl + "/api/charging", ChargingDto[].class);
 
         return Arrays.stream(stations)
                 .filter(station -> !bookedIds.contains(station.getId()))
@@ -97,8 +129,26 @@ public class BookingService {
             throw new IllegalStateException("Station is not available at this time");
         }
 
-        String url = "http://user-service/api/users/" + request.getUserId() + "/deduct?amount=" + request.getAmount();
-        restTemplate.postForObject(url, null, Void.class); // if 200 OK, it’s deducted
+        // Fetch station info for availability check
+        ChargingDto station = restTemplate.getForObject(
+            chargingServiceUrl + "/api/charging/" + request.getStationId(), ChargingDto.class);
+        if (station == null) {
+            throw new IllegalStateException("Station not found");
+        }
+        if (request.getStartTime() == null || request.getEndTime() == null) {
+            throw new IllegalStateException("Booking start and end time must be provided");
+        }
+        if (request.getStartTime().isBefore(station.getAvailableFrom()) ||
+            request.getEndTime().isAfter(station.getAvailableUntil())) {
+            throw new IllegalStateException("Station not available at this time");
+        }
+
+        // Calculate duration in minutes
+        long durationMinutes = java.time.Duration.between(request.getStartTime(), request.getEndTime()).toMinutes();
+        double amount = station.getPricePerMinute() * durationMinutes;
+
+        String url = userServiceUrl + "/api/users/" + request.getUserId() + "/deduct?amount=" + amount;
+        restTemplate.postForObject(url, null, Void.class); // if 200 OK, it's deducted
 
         // Save booking
         Booking booking = new Booking();
@@ -106,9 +156,13 @@ public class BookingService {
         booking.setStationId(request.getStationId());
         booking.setStartTime(request.getStartTime());
         booking.setEndTime(request.getEndTime());
-        booking.setAmount(request.getAmount());
+        booking.setAmount(amount);
         booking.setStatus(BookingStatus.PENDING);
         return bookingRepository.save(booking);
+    }
+
+    public List<Booking> getBookingsByStationIds(List<Long> stationIds) {
+        return bookingRepository.findByStationIdIn(stationIds);
     }
 
 }

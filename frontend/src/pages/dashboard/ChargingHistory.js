@@ -26,7 +26,7 @@ function ChargingHistory() {
           {history.map(item => (
             <tr key={item.id}>
               <td>{item.stationName || item.stationId}</td>
-              <td>{item.start}</td>
+              <td>{item.startTime ? new Date(item.startTime).toLocaleString() : '-'}</td>
               <td>{item.amount ? `$${item.amount}` : '-'}</td>
               <td>{item.status}</td>
             </tr>

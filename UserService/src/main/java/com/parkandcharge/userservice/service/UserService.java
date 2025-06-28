@@ -62,4 +62,11 @@ public class UserService {
         user.setBalance(user.getBalance() - amount);
         userRepository.save(user);
     }
+
+    public void addBalance(Long userId, double amount) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setBalance(user.getBalance() + amount);
+        userRepository.save(user);
+    }
 }

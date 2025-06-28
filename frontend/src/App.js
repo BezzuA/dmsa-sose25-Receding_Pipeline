@@ -9,6 +9,7 @@ import ChargingHistory from './pages/dashboard/ChargingHistory';
 import Payment from './pages/dashboard/Payment';
 import Statistics from './pages/dashboard/Statistics';
 import Settings from './pages/dashboard/Settings';
+import OwnerDashboard from './pages/dashboard/OwnerDashboard';
 import './App.css';
 
 function DashboardLayout({ user, onLogout }) {
@@ -24,6 +25,9 @@ function DashboardLayout({ user, onLogout }) {
   const routeToMenu = Object.fromEntries(Object.entries(menuToRoute).map(([k, v]) => [v, k]));
   const activePage = routeToMenu[window.location.pathname] || 'Dashboard';
 
+  // Show OwnerDashboard for owners
+  const isOwner = user.role === 'OWNER';
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar
@@ -37,7 +41,7 @@ function DashboardLayout({ user, onLogout }) {
         </div>
         <div className="dashboard-content">
           <Routes>
-            <Route path="/" element={<DashboardHome />} />
+            <Route path="/" element={isOwner ? <OwnerDashboard /> : <DashboardHome />} />
             <Route path="/book-charging" element={<BookCharging />} />
             <Route path="/charging-history" element={<ChargingHistory />} />
             <Route path="/payment" element={<Payment />} />
@@ -67,6 +71,7 @@ function App() {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    window.location.href = '/';
   };
 
   const handleSignup = () => {
