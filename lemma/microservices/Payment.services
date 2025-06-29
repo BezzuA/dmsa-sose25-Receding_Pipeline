@@ -1,0 +1,73 @@
+import datatypes  from "../../domain/Payment.data"          as PaymentDomain
+import technology from "../../technology/JavaSpring.technology"  as JavaSpring
+import technology from "../../technology/Protocols.technology"   as Protocols
+
+@technology(JavaSpring)
+@technology(Protocols)
+@sync(Protocols::_protocols.rest)                 // synchronous REST
+public functional microservice com.parkandcharge.paymentservice.PaymentService {
+
+    // Base path: /api/payments
+    @endpoints(Protocols::_protocols.rest: "/api/payments";)
+    interface Payments {
+
+        --- 
+        List all payments 
+        ---
+        @JavaSpring::_aspects.GetMapping
+        getAllPayments(
+            sync out payments : PaymentDomain::Payments
+        );
+
+        --- 
+        Get payment by ID 
+        @required id  Payment identifier 
+        ---
+        @endpoints(Protocols::_protocols.rest: "/{id}";)
+        @JavaSpring::_aspects.GetMapping
+        getPayment(
+            @JavaSpring::_aspects.PathVariable
+            sync in  id      : long,
+
+            sync out payment : PaymentDomain::Payment
+        );
+
+        --- 
+        Make a payment 
+        @required payment  Payment payload 
+        ---
+        @JavaSpring::_aspects.PostMapping
+        makePayment(
+            @JavaSpring::_aspects.RequestBody
+            sync in  payment  : PaymentDomain::Payment,
+
+            sync out created  : PaymentDomain::Payment
+        );
+
+        --- 
+        Payments by user 
+        @required userId  User identifier 
+        ---
+        @endpoints(Protocols::_protocols.rest: "/user/{userId}";)
+        @JavaSpring::_aspects.GetMapping
+        getPaymentsByUser(
+            @JavaSpring::_aspects.PathVariable
+            sync in  userId   : long,
+
+            sync out payments : PaymentDomain::Payments
+        );
+
+        --- 
+        Payments by booking 
+        @required bookingId  Booking identifier 
+        ---
+        @endpoints(Protocols::_protocols.rest: "/booking/{bookingId}";)
+        @JavaSpring::_aspects.GetMapping
+        getPaymentsByBooking(
+            @JavaSpring::_aspects.PathVariable
+            sync in  bookingId : long,
+
+            sync out payments  : PaymentDomain::Payments
+        );
+    }
+}

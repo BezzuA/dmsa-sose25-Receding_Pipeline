@@ -1,0 +1,18 @@
+context Statistics {
+
+    // ------------------------------
+    // Read-model concept : StationStatistics
+    // ------------------------------
+    structure StationStatistics<valueObject> {
+        long   stationId,
+        int    totalBookings,
+        double totalEarnings
+    }
+
+    collection StationStatisticsList { StationStatistics s }
+
+    structure StatisticsQueryService<service> {
+        function StationStatistics      getStationStats(long stationId),
+        function StationStatisticsList  getAllStats()
+    }
+}

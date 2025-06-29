@@ -1,0 +1,69 @@
+context Booking {
+
+    // ------------------------------
+    // Aggregate root : Booking
+    // ------------------------------
+
+    // Entity
+    structure Booking<aggregate, entity> {
+        // Id
+        // GeneratedValue(strategy = IDENTITY)
+        long id<identifier>,
+
+        long userId,              // FK to User
+        long stationId,           // FK to ChargingStation
+
+        datetime startTime,
+        datetime endTime,
+
+        double amount,
+
+        // Enumerated(EnumType.STRING)
+        BookingStatus status = BookingStatus.PENDING
+    }
+
+    enum BookingStatus {
+        PENDING,
+        COMPLETED,
+        CANCELLED
+    }
+
+    collection Bookings { Booking b }
+
+    structure BookingManagementService<service> {
+        function Bookings           getAllBookings(),
+        function Booking            getBooking(long id),
+        function Booking            createBooking(Booking booking),
+        procedure                  cancelBooking(long id),
+        function Booking            completeBooking(long id),
+        function Bookings           getBookingsByUserId(long userId),
+        function Bookings           getAvailableStations(datetime start,
+                                                         datetime end),
+        function Booking            bookStation
+    }
+}
+
+context API {
+
+    // JSON payload for POST /api/bookings/book
+    structure BookingRequestDto<valueObject> {
+        long     userId,
+        long     stationId,
+        datetime startTime,
+        datetime endTime,
+        double   amount
+    }
+
+    // Lightweight projection of a charging station returned by
+    // GET /api/bookings/available
+    structure ChargingDto<valueObject> {
+        long     id,
+        string   name,
+        double   pricePerMinute,
+        double   latitude,
+        double   longitude,
+        long     ownerId,
+        datetime availableFrom,
+        datetime availableUntil
+    }
+}

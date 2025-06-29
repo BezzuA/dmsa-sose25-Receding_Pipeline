@@ -1,0 +1,152 @@
+import datatypes  from "../../domain/User.data"           as UserDomain
+import technology from "../../technology/JavaSpring.technology"  as JavaSpring
+import technology from "../../technology/Protocols.technology"   as Protocols
+
+@technology(JavaSpring)
+@technology(Protocols)
+@sync(Protocols::_protocols.rest)
+public functional microservice com.parkandcharge.userservice.UserService {
+
+    // Base URI prefix: /api/users
+    @endpoints(Protocols::_protocols.rest: "/api/users";)
+    interface UsersApi {
+
+        ------------------------------------------------------------
+        //  1.  Registration & authentication
+        ------------------------------------------------------------
+
+        ---
+        Sign-up a new user
+        ---
+        @endpoints(Protocols::_protocols.rest: "/signup";)
+        @JavaSpring::_aspects.PostMapping
+        signup(
+            @JavaSpring::_aspects.RequestBody
+            sync in  request : UserDomain::API.RegisterRequest,
+
+            sync out user    : UserDomain::UserAccount
+        );
+
+        ---
+        Sign-in (email & password)
+        ---
+        @endpoints(Protocols::_protocols.rest: "/signin";)
+        @JavaSpring::_aspects.PostMapping
+        signin(
+            @JavaSpring::_aspects.RequestBody
+            sync in  credentials : UserDomain::API.AuthRequest,
+
+            sync out user        : UserDomain::UserAccount
+        );
+
+        ------------------------------------------------------------
+        //  2.  CRUD operations
+        ------------------------------------------------------------
+
+        ---
+        Update user
+        @required id  User ID to update
+        ---
+        @endpoints(Protocols::_protocols.rest: "/{id}";)
+        @JavaSpring::_aspects.PutMapping
+        updateUser(
+            @JavaSpring::_aspects.PathVariable
+            sync in  id      : long,
+
+            @JavaSpring::_aspects.RequestBody
+            sync in  user    : UserDomain::UserAccount,
+
+            sync out updated : UserDomain::UserAccount
+        );
+
+        ---
+        List all users
+        ---
+        @JavaSpring::_aspects.GetMapping
+        getAllUsers(
+            sync out users : UserDomain::Users
+        );
+
+        ---
+        Get user by ID
+        @required id  User ID
+        ---
+        @endpoints(Protocols::_protocols.rest: "/{id}";)
+        @JavaSpring::_aspects.GetMapping
+        getUser(
+            @JavaSpring::_aspects.PathVariable
+            sync in  id   : long,
+
+            sync out user : UserDomain::UserAccount
+        );
+
+        ---
+        Alternative create endpoint
+        ---
+        @JavaSpring::_aspects.PostMapping
+        createUser(
+            @JavaSpring::_aspects.RequestBody
+            sync in  request : UserDomain::API.RegisterRequest,
+
+            sync out user    : UserDomain::UserAccount
+        );
+
+        ---
+        Delete user
+        @required id  User ID
+        ---
+        @endpoints(Protocols::_protocols.rest: "/{id}";)
+        @JavaSpring::_aspects.DeleteMapping
+        deleteUser(
+            @JavaSpring::_aspects.PathVariable
+            sync in id : long
+        );
+
+        ------------------------------------------------------------
+        //  3.  Balance operations
+        ------------------------------------------------------------
+
+        ---
+        Get current balance
+        @required id  User ID
+        ---
+        @endpoints(Protocols::_protocols.rest: "/{id}/balance";)
+        @JavaSpring::_aspects.GetMapping
+        getBalance(
+            @JavaSpring::_aspects.PathVariable
+            sync in  id       : long,
+
+            sync out balance  : double
+        );
+
+        ---
+        Top-up balance
+        @required id, amount
+        ---
+        @endpoints(Protocols::_protocols.rest: "/{id}/topup";)
+        @JavaSpring::_aspects.PostMapping
+        topUp(
+            @JavaSpring::_aspects.PathVariable
+            sync in  id      : long,
+
+            @JavaSpring::_aspects.RequestParam
+            sync in  amount  : double,
+
+            sync out balance : double
+        );
+
+        ---
+        Deduct balance
+        @required id, amount
+        ---
+        @endpoints(Protocols::_protocols.rest: "/{id}/deduct";)
+        @JavaSpring::_aspects.PostMapping
+        deductBalance(
+            @JavaSpring::_aspects.PathVariable
+            sync in id     : long,
+
+            @JavaSpring::_aspects.RequestParam
+            sync in amount : double
+        );
+    }
+}

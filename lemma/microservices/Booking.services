@@ -1,0 +1,116 @@
+import datatypes   from "../../domain/Booking.data"     as BookingDomain
+import technology  from "../../technology/JavaSpring.technology"  as JavaSpring
+import technology  from "../../technology/Protocols.technology"   as Protocols
+
+@technology(JavaSpring)
+@technology(Protocols)
+@sync(Protocols::_protocols.rest)          // synchronous REST calls
+
+public functional microservice com.parkandcharge.bookingservice.BookingService {
+
+    // Base URL:  /api/bookings
+    @endpoints(Protocols::_protocols.rest: "/api/bookings";)
+    interface Bookings {
+
+        ---                                          
+        List all bookings                           
+        ---                                          
+        @JavaSpring::_aspects.GetMapping
+        getAllBookings(
+            // returns a list of bookings
+            sync out bookings : BookingDomain::Bookings
+        );
+
+        ---                                          
+        Get booking by ID                           
+        @required id  ID of the booking             
+        ---                                          
+        @endpoints(Protocols::_protocols.rest: "/{id}";)
+        @JavaSpring::_aspects.GetMapping
+        getBooking(
+            @JavaSpring::_aspects.PathVariable
+            sync in  id      : long,
+
+            sync out booking : BookingDomain::Booking
+        );
+
+        ---                                          
+        Create booking                              
+        @required booking  Booking payload          
+        ---                                          
+        @JavaSpring::_aspects.PostMapping
+        createBooking(
+            @JavaSpring::_aspects.RequestBody
+            sync in  booking  : BookingDomain::Booking,
+
+            sync out created  : BookingDomain::Booking
+        );
+
+        ---                                          
+        Cancel booking                              
+        @required id  Booking ID to cancel          
+        ---                                          
+        @endpoints(Protocols::_protocols.rest: "/{id}/cancel";)
+        @JavaSpring::_aspects.PostMapping
+        cancelBooking(
+            @JavaSpring::_aspects.PathVariable
+            sync in id : long
+        );
+
+        ---                                          
+        Get bookings by user                        
+        @required userId  User’s ID                 
+        ---                                          
+        @endpoints(Protocols::_protocols.rest: "/user/{userId}";)
+        @JavaSpring::_aspects.GetMapping
+        getBookingsByUserId(
+            @JavaSpring::_aspects.PathVariable
+            sync in  userId   : long,
+
+            sync out bookings : BookingDomain::Bookings
+        );
+
+        ---                                          
+        Complete booking                            
+        @required id  Booking ID to complete        
+        ---                                          
+        @endpoints(Protocols::_protocols.rest: "/{id}/complete";)
+        @JavaSpring::_aspects.PostMapping
+        completeBooking(
+            @JavaSpring::_aspects.PathVariable
+            sync in  id      : long,
+
+            sync out booking : BookingDomain::Booking
+        );
+
+        ---                                          
+        List available stations                     
+        @required start,end  Time range             
+        ---                                          
+        @endpoints(Protocols::_protocols.rest: "/available";)
+        @JavaSpring::_aspects.GetMapping
+        getAvailableStations(
+            // Spring’s @RequestParam → generic query-param aspect
+            @JavaSpring::_aspects.RequestParam
+            sync in  start    : datetime,
+
+            @JavaSpring::_aspects.RequestParam
+            sync in  end      : datetime,
+
+            sync out stations : BookingDomain::ChargingDto[]
+        );
+
+        ---                                          
+        Book station                                
+        @required request  Booking request payload  
+        ---                                          
+        @endpoints(Protocols::_protocols.rest: "/book";)
+        @JavaSpring::_aspects.PostMapping
+        bookStation(
+            @JavaSpring::_aspects.RequestBody
+            sync in  request : BookingDomain::BookingRequestDto,
+
+            sync out booking : BookingDomain::Booking
+        );
+    }
+}

@@ -1,0 +1,30 @@
+context Charging {
+
+    // Entity
+    structure ChargingStation<aggregate, entity> {
+        // Id
+        // GeneratedValue(strategy = IDENTITY)
+        long id<identifier>,
+
+        string name,
+        long ownerId,           
+        double pricePerMinute,
+
+        double latitude,
+        double longitude,
+
+        datetime availableFrom,
+        datetime availableUntil
+    }
+
+    collection ChargingStationList { ChargingStation s }
+
+    structure ChargingStationService<service> {
+        function ChargingStationList getAllStations(),
+        function ChargingStation     getStation(long id),
+        function ChargingStation     createStation(ChargingStation station),
+        function ChargingStation     updateStation(long id, ChargingStation station),
+        procedure                    deleteStation(long id),
+        function ChargingStationList getStationsByOwner(long ownerId)
+    }
+}

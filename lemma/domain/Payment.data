@@ -1,0 +1,32 @@
+context Payment {
+
+    // ------------------------------
+    // Aggregate root : Payment
+    // ------------------------------
+
+    // Entity
+    structure Payment<aggregate, entity> {
+        // Id
+        // GeneratedValue(strategy = IDENTITY)
+        long id<identifier>,
+
+        long userId,              // FK to User
+        long bookingId,           // FK to Booking
+
+        double amount,
+        string status,            // e.g. "PAID", "FAILED"
+
+        datetime paymentTime
+    }
+
+
+    structure PaymentProcessingService<service> {
+        function Payments getAllPayments(),
+        function Payment  getPayment(long id),
+        function Payment  makePayment(Payment payment),
+        function Payments getPaymentsByUser(long userId),
+        function Payments getPaymentsByBooking(long bookingId)
+    }
+
+    collection Payments { Payment p }
+}

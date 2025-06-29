@@ -1,0 +1,87 @@
+import datatypes  from "../../domain/Charging.data"         as ChargingDomain
+import technology from "../../technology/JavaSpring.technology"  as JavaSpring
+import technology from "../../technology/Protocols.technology"   as Protocols
+
+@technology(JavaSpring)
+@technology(Protocols)
+@sync(Protocols::_protocols.rest)
+public functional microservice com.parkandcharge.chargingservice.ChargingService {
+
+    // Base path: /stations
+    @endpoints(Protocols::_protocols.rest: "/stations";)
+    interface Stations {
+
+        --- 
+        List all charging stations 
+        ---
+        @JavaSpring::_aspects.GetMapping
+        getAllStations(
+            sync out stations : ChargingDomain::ChargingStationList
+        );
+
+        --- 
+        Get station by ID 
+        @required id  Station identifier 
+        ---
+        @endpoints(Protocols::_protocols.rest: "/{id}";)
+        @JavaSpring::_aspects.GetMapping
+        getStation(
+            @JavaSpring::_aspects.PathVariable
+            sync in  id      : long,
+
+            sync out station : ChargingDomain::ChargingStation
+        );
+
+        --- 
+        Create station 
+        @required station  Station payload 
+        ---
+        @JavaSpring::_aspects.PostMapping
+        createStation(
+            @JavaSpring::_aspects.RequestBody
+            sync in  station  : ChargingDomain::ChargingStation,
+
+            sync out created  : ChargingDomain::ChargingStation
+        );
+
+        --- 
+        Update station 
+        @required id  Station to update 
+        ---
+        @endpoints(Protocols::_protocols.rest: "/{id}";)
+        @JavaSpring::_aspects.PutMapping
+        updateStation(
+            @JavaSpring::_aspects.PathVariable
+            sync in  id       : long,
+
+            @JavaSpring::_aspects.RequestBody
+            sync in  station  : ChargingDomain::ChargingStation,
+
+            sync out updated  : ChargingDomain::ChargingStation
+        );
+
+        --- 
+        Delete station 
+        @required id  Station to delete 
+        ---
+        @endpoints(Protocols::_protocols.rest: "/{id}";)
+        @JavaSpring::_aspects.DeleteMapping
+        deleteStation(
+            @JavaSpring::_aspects.PathVariable
+            sync in id : long
+        );
+
+        --- 
+        List stations by owner 
+        @required ownerId  Owner’s user ID 
+        ---
+        @endpoints(Protocols::_protocols.rest: "/owner/{ownerId}";)
+        @JavaSpring::_aspects.GetMapping
+        getStationsByOwner(
+            @JavaSpring::_aspects.PathVariable
+            sync in  ownerId  : long,
+
+            sync out stations : ChargingDomain::ChargingStationList
+        );
+    }
+}

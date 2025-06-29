@@ -1,0 +1,65 @@
+context User {
+
+    // ------------------------------
+    // Aggregate root : UserAccount
+    // ------------------------------
+
+    // Entity
+    // Table(name = "users")
+    structure UserAccount<aggregate, entity> {
+        double balance = 0.0,
+
+        // Id
+        // GeneratedValue(strategy = IDENTITY)
+        long   id<identifier>,
+
+        // NotBlank
+        string username,
+
+        // Email
+        // NotBlank
+        string email,
+
+        // NotBlank
+        string password,
+
+        // Enumerated(EnumType.STRING)
+        Role   role
+    }
+
+    // ------------------------------
+    // Supporting concepts
+    // ------------------------------
+
+    enum Role {
+        OWNER,
+        CAR_USER
+    }
+
+
+    collection Users { UserAccount u }
+
+    structure UserAccountService<service> {
+        function Users        getAllUsers(),
+        function UserAccount  getUserById(long id),
+        function UserAccount  createUser(RegisterRequest request),
+        procedure             deleteUser(long id),
+        function UserAccount  authenticate(string email, string password),
+        function UserAccount  updateUser(long id, UserAccount user),
+        procedure             deductBalance(long userId, double amount)
+    }
+}
+
+context API {
+    structure RegisterRequest<valueObject> {
+        string username,
+        string email,
+        string password,
+        UserDomain::Role role
+    }
+
+    structure AuthRequest<valueObject> {
+        string email,
+        string password
+    }
+}

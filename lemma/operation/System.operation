@@ -1,0 +1,212 @@
+import technology   from "../technology/Docker.technology"    as Docker
+import technology   from "../technology/Protocols.technology" as Protocols
+
+/* ------------------------------------------------------------------
+   Infrastructure nodes (Config, Discovery, Gateway, H2 databases)
+   ------------------------------------------------------------------ */
+
+@technology(Docker)
+@technology(Protocols)
+infrastructureNode ConfigServer {
+    aspects {
+        Docker::_aspects.Dockerfile('
+            COPY config-server.jar .
+            CMD  java -jar config-server.jar
+        ');
+    }
+    default values {
+        basic endpoints {
+            Protocols::_protocols.rest : "8888:8888";
+        }
+    }
+}
+
+@technology(Docker)
+@technology(Protocols)
+infrastructureNode EurekaServer {
+    aspects {
+        Docker::_aspects.Dockerfile('
+            COPY eureka-server.jar .
+            CMD  java -jar eureka-server.jar
+        ');
+    }
+    default values {
+        basic endpoints {
+            Protocols::_protocols.rest : "8761:8761";
+        }
+    }
+}
+
+@technology(Docker)
+@technology(Protocols)
+infrastructureNode GatewayService {
+    aspects {
+        Docker::_aspects.Dockerfile('
+            COPY gateway-service.jar .
+            CMD  java -jar gateway-service.jar
+        ');
+    }
+    default values {
+        basic endpoints {
+            Protocols::_protocols.rest : "8080:8080";
+        }
+    }
+}
+
+// One H2 node per micro-service
+
+@technology(Docker) infrastructureNode BookingH2   {}
+@technology(Docker) infrastructureNode ChargingH2  {}
+@technology(Docker) infrastructureNode PaymentH2   {}
+@technology(Docker) infrastructureNode StatisticsH2{}
+@technology(Docker) infrastructureNode UserH2      {}
+
+/* ------------------------------------------------------------------
+   Micro-service containers
+   ------------------------------------------------------------------ */
+
+import microservices from "../microservices/booking/Booking.services"    as BookingSvc
+import microservices from "../microservices/charging/Charging.services"  as ChargingSvc
+import microservices from "../microservices/payment/Payment.services"    as PaymentSvc
+import microservices from "../microservices/statistics/Statistics.services" as StatsSvc
+import microservices from "../microservices/user/User.services"          as UserSvc
+
+/* === BookingService ================================================= */
+
+@technology(Docker)
+@technology(Protocols)
+container BookingServiceContainer
+    deployment technology Docker::_deployment.Docker
+    deploys BookingSvc::com.parkandcharge.bookingservice.BookingService
+{
+    aspects {
+        Docker::_aspects.Dockerfile('
+            COPY booking-service.jar .
+            CMD  java ${JAVA_OPTS} -jar booking-service.jar
+        ');
+    }
+    default values {
+        basic endpoints {
+            Protocols::_protocols.rest : "8082:8082";
+        }
+        environmentVariables {
+            "SPRING_CONFIG_IMPORT"                       : "configserver:http://configserver:8888/",
+            "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE"       : "http://eurekaserver:8761/eureka/"
+        }
+    }
+    connectsTo ConfigServer,
+               EurekaServer,
+               BookingH2
+}
+
+/* === ChargingService =============================================== */
+
+@technology(Docker)
+@technology(Protocols)
+container ChargingServiceContainer
+    deployment technology Docker::_deployment.Docker
+    deploys ChargingSvc::com.parkandcharge.chargingservice.ChargingService
+{
+    aspects {
+        Docker::_aspects.Dockerfile('
+            COPY charging-service.jar .
+            CMD  java ${JAVA_OPTS} -jar charging-service.jar
+        ');
+    }
+    default values {
+        basic endpoints {
+            Protocols::_protocols.rest : "8084:8084";
+        }
+        environmentVariables {
+            "SPRING_CONFIG_IMPORT"                       : "configserver:http://configserver:8888/",
+            "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE"       : "http://eurekaserver:8761/eureka/"
+        }
+    }
+    connectsTo ConfigServer,
+               EurekaServer,
+               ChargingH2
+}
+
+/* === PaymentService ================================================= */
+
+@technology(Docker)
+@technology(Protocols)
+container PaymentServiceContainer
+    deployment technology Docker::_deployment.Docker
+    deploys PaymentSvc::com.parkandcharge.paymentservice.PaymentService
+{
+    aspects {
+        Docker::_aspects.Dockerfile('
+            COPY payment-service.jar .
+            CMD  java ${JAVA_OPTS} -jar payment-service.jar
+        ');
+    }
+    default values {
+        basic endpoints {
+            Protocols::_protocols.rest : "8083:8083";
+        }
+        environmentVariables {
+            "SPRING_CONFIG_IMPORT"                       : "configserver:http://configserver:8888/",
+            "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE"       : "http://eurekaserver:8761/eureka/"
+        }
+    }
+    connectsTo ConfigServer,
+               EurekaServer,
+               PaymentH2
+}
+
+/* === StatisticsService ============================================= */
+
+@technology(Docker)
+@technology(Protocols)
+container StatisticsServiceContainer
+    deployment technology Docker::_deployment.Docker
+    deploys StatsSvc::com.parkandcharge.statisticsservice.StatisticsService
+{
+    aspects {
+        Docker::_aspects.Dockerfile('
+            COPY statistics-service.jar .
+            CMD  java ${JAVA_OPTS} -jar statistics-service.jar
+        ');
+    }
+    default values {
+        basic endpoints {
+            Protocols::_protocols.rest : "8085:8085";
+        }
+        environmentVariables {
+            "SPRING_CONFIG_IMPORT"                       : "configserver:http://configserver:8888/",
+            "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE"       : "http://eurekaserver:8761/eureka/"
+        }
+    }
+    connectsTo ConfigServer,
+               EurekaServer,
+               StatisticsH2
+}
+
+/* === UserService ==================================================== */
+
+@technology(Docker)
+@technology(Protocols)
+container UserServiceContainer
+    deployment technology Docker::_deployment.Docker
+    deploys UserSvc::com.parkandcharge.userservice.UserService
+{
+    aspects {
+        Docker::_aspects.Dockerfile('
+            COPY user-service.jar .
+            CMD  java ${JAVA_OPTS} -jar user-service.jar
+        ');
+    }
+    default values {
+        basic endpoints {
+            Protocols::_protocols.rest : "8081:8081";
+        }
+        environmentVariables {
+            "SPRING_CONFIG_IMPORT"                       : "configserver:http://configserver:8888/",
+            "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE"       : "http://eurekaserver:8761/eureka/"
+        }
+    }
+    connectsTo ConfigServer,
+               EurekaServer,
+               UserH2
+}

@@ -1,0 +1,35 @@
+import datatypes  from "../../domain/Statistics.data"          as StatsDomain
+import technology from "../../technology/JavaSpring.technology"  as JavaSpring
+import technology from "../../technology/Protocols.technology"   as Protocols
+
+@technology(JavaSpring)
+@technology(Protocols)
+@sync(Protocols::_protocols.rest)
+public functional microservice com.parkandcharge.statisticsservice.StatisticsService {
+
+    // Base path: /api/statistics
+    @endpoints(Protocols::_protocols.rest: "/api/statistics";)
+    interface StatisticsApi {
+
+        ---
+        Get statistics for one station
+        @required stationId  ID of the charging station
+        ---
+        @endpoints(Protocols::_protocols.rest: "/station/{stationId}";)
+        @JavaSpring::_aspects.GetMapping
+        getStationStats(
+            @JavaSpring::_aspects.PathVariable
+            sync in  stationId : long,
+
+            sync out stats     : StatsDomain::StationStatistics
+        );
+
+        ---
+        Get statistics for all stations
+        ---
+        @JavaSpring::_aspects.GetMapping
+        getAllStats(
+            sync out allStats : StatsDomain::StationStatisticsList
+        );
+    }
+}
