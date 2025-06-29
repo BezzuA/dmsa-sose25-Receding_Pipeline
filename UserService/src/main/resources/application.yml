@@ -1,16 +1,3 @@
 spring:
-  datasource:
-    url: jdbc:h2:file:./data/user-db;AUTO_SERVER=TRUE;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  jpa:
-    hibernate:
-      ddl-auto: update
-    database-platform: org.hibernate.dialect.H2Dialect
-    defer-datasource-initialization: true
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console   # http://localhost:8080/h2-console
+  config:
+    import: "configserver:"
