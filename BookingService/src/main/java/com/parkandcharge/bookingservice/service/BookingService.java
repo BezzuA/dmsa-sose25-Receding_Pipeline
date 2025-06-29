@@ -4,10 +4,13 @@ import com.parkandcharge.bookingservice.dto.ChargingDto;
 import com.parkandcharge.bookingservice.model.Booking;
 import com.parkandcharge.bookingservice.model.BookingStatus;
 import com.parkandcharge.bookingservice.repository.BookingRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -122,6 +125,15 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
+    public Booking fallbackDeduct(BookingRequestDto request, Throwable t) {
+        System.out.println("⚠️ Fallback triggered: " + t.getMessage());
+        throw new ResponseStatusException(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Booking failed: user service is currently unavailable. Please try again later."
+        );
+    }
+
+    @CircuitBreaker(name = "userService", fallbackMethod = "fallbackDeduct")
     public Booking bookStation(BookingRequestDto request) {
         // Validate availability
         List<Long> conflictingIds = bookingRepository.findConflictingStationIds(request.getStartTime(), request.getEndTime());
