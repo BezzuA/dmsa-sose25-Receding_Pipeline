@@ -147,8 +147,8 @@ public class BookingService {
         long durationMinutes = java.time.Duration.between(request.getStartTime(), request.getEndTime()).toMinutes();
         double amount = station.getPricePerMinute() * durationMinutes;
 
-        String url = userServiceUrl + "/api/users/" + request.getUserId() + "/deduct?amount=" + amount;
-        restTemplate.postForObject(url, null, Void.class); // if 200 OK, it's deducted
+        // String url = userServiceUrl + "/api/users/" + request.getUserId() + "/deduct?amount=" + amount;
+        // restTemplate.postForObject(url, null, Void.class); // if 200 OK, it's deducted
 
         // Save booking
         Booking booking = new Booking();

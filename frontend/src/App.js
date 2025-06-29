@@ -85,12 +85,18 @@ function App() {
           {showSignup ? (
             <>
               <SignupPage onSignup={handleSignup} />
-              <p>Already have an account? <button onClick={() => setShowSignup(false)}>Login</button></p>
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
+                <p style={{ marginRight: '0.5rem' }}>Already have an account?</p>
+                <button onClick={() => setShowSignup(false)}>Login</button>
+              </div>
             </>
           ) : (
             <>
               <LoginPage onLogin={handleLogin} />
-              <p>Don't have an account? <button onClick={() => setShowSignup(true)}>Sign Up</button></p>
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
+                <p style={{ marginRight: '0.5rem' }}>Don't have an account?</p>
+                <button onClick={() => setShowSignup(true)}>Sign Up</button>
+              </div>
             </>
           )}
         </div>

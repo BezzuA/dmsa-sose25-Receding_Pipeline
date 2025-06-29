@@ -1,6 +1,6 @@
 -- Sample users for testing
-INSERT INTO users (username, email, password, role, balance) VALUES 
-('john_doe', 'john@example.com', 'password123', 'CAR_USER', 100.00),
-('jane_smith', 'jane@example.com', 'password123', 'CAR_USER', 50.00),
-('station_owner', 'owner@example.com', 'password123', 'OWNER', 0.00);
-
+INSERT INTO USERS (USERNAME, EMAIL, PASSWORD, ROLE, BALANCE) VALUES 
+('john', 'john@example.com', 'password123', 'OWNER', 0.00),
+('jack', 'jack@example.com', 'password123', 'OWNER', 0.00),
+('james', 'james@example.com', 'password123', 'OWNER', 0.00),
+('yanal', 'yanal@example.com', 'password123', 'CAR_USER', 100.00);
