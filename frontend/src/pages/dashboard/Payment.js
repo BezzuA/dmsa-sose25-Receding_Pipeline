@@ -36,6 +36,12 @@ function Payment() {
     }
   };
 
+  const user = JSON.parse(localStorage.getItem('user'));
+  const isOwner = user && user.role === 'OWNER';
+  // Filter payments for display
+  const userPayments = payments.filter(p => p.status === 'PAID');
+  const ownerCredits = payments.filter(p => p.status === 'OWNER_CREDITED');
+
   return (
     <div style={{ padding: '2rem' }}>
       <h2>Payment</h2>
@@ -43,24 +49,49 @@ function Payment() {
         Balance: <b>${balance.toFixed(2)}</b>
         <button onClick={() => setShowModal(true)} style={{ padding: '0.4rem 1rem', fontSize: '1rem' }}>Top Up Balance</button>
       </div>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Amount</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {payments.map(item => (
-            <tr key={item.id}>
-              <td>{item.paymentTime ? new Date(item.paymentTime).toLocaleString() : '-'}</td>
-              <td>${item.amount !== undefined ? Number(item.amount).toFixed(2) : '-'}</td>
-              <td>{item.status || '-'}</td>
+      {!isOwner && (
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {userPayments.map(item => (
+              <tr key={item.id}>
+                <td>{item.paymentTime ? new Date(item.paymentTime).toLocaleString() : '-'}</td>
+                <td>${item.amount !== undefined ? Number(item.amount).toFixed(2) : '-'}</td>
+                <td>{item.status || '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {isOwner && (
+        <>
+          <h3>Owner Credits</h3>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ownerCredits.map(item => (
+                <tr key={item.id}>
+                  <td>{item.paymentTime ? new Date(item.paymentTime).toLocaleString() : '-'}</td>
+                  <td>${item.amount !== undefined ? Number(item.amount).toFixed(2) : '-'}</td>
+                  <td>{item.status === 'OWNER_CREDITED' ? 'Credited' : item.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
       {showModal && (
         <div style={{
           position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',

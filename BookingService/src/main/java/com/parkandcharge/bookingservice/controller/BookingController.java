@@ -52,6 +52,16 @@ public class BookingController {
         return bookingService.getBookingsByUserId(userId);
     }
 
+    @PostMapping("/{id}/approve")
+    public Booking approveBooking(@PathVariable Long id) {
+        return bookingService.approveBooking(id);
+    }
+
+    @PostMapping("/{id}/start")
+    public Booking startBooking(@PathVariable Long id) {
+        return bookingService.startBooking(id);
+    }
+
     @PostMapping("/{id}/complete")
     public Booking completeBooking(@PathVariable Long id) {
         return bookingService.completeBooking(id);
@@ -75,5 +85,10 @@ public class BookingController {
         List<Integer> chargingIds = restTemplate.getForObject(url, List.class);
         List<Long> stationIds = chargingIds == null ? List.of() : chargingIds.stream().map(Integer::longValue).toList();
         return bookingService.getBookingsByStationIds(stationIds);
+    }
+
+    @GetMapping("/station/{stationId}/in-use")
+    public boolean isStationInUse(@PathVariable Long stationId) {
+        return bookingService.isStationInUse(stationId);
     }
 }

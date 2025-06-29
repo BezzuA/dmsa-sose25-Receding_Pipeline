@@ -12,9 +12,19 @@ export const cancelBooking = async (bookingId) => {
   return response;
 };
 export const getBookingsByUserId = (userId) => axios.get(`${BASE_URL}/user/${userId}`);
+export const approveBooking = async (bookingId) => {
+  const response = await fetch(`/api/bookings/${bookingId}/approve`, { method: 'POST' });
+  if (!response.ok) throw new Error('Failed to approve booking');
+  return response.json();
+};
+export const startBooking = async (bookingId) => {
+  const response = await fetch(`/api/bookings/${bookingId}/start`, { method: 'POST' });
+  if (!response.ok) throw new Error('Failed to start booking');
+  return response.json();
+};
 export const completeBooking = async (bookingId) => {
   const response = await fetch(`/api/bookings/${bookingId}/complete`, { method: 'POST' });
-  if (!response.ok) throw new Error('Failed to approve booking');
+  if (!response.ok) throw new Error('Failed to complete booking');
   return response.json();
 };
 export const getAvailableStations = (start, end) => axios.get(`${BASE_URL}/available`, {
@@ -25,4 +35,4 @@ export const getBookingsForOwner = async (ownerId) => {
   const response = await fetch(`/api/bookings/owner-bookings?ownerId=${ownerId}`);
   if (!response.ok) throw new Error('Failed to fetch owner bookings');
   return response.json();
-}; 
+};

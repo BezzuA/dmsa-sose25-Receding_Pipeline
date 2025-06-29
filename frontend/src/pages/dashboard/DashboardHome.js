@@ -43,7 +43,17 @@ function DashboardHome() {
                   <td>{item.startTime || item.start}</td>
                   <td>{item.endTime || item.end}</td>
                   <td>{item.amount ? `$${item.amount}` : '-'}</td>
-                  <td>{item.status}</td>
+                  <td>
+                    <span style={{
+                      color:
+                        item.status === 'COMPLETED' ? 'green' :
+                        item.status === 'IN_USE' ? 'orange' :
+                        item.status === 'APPROVED' ? 'blue' :
+                        item.status === 'PENDING' ? 'gray' :
+                        item.status === 'CANCELLED' ? 'red' :
+                        item.status === 'FAILED' ? 'red' : 'black'
+                    }}>{item.status}</span>
+                  </td>
                 </tr>
               ))
             )}

@@ -8,6 +8,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
@@ -53,66 +54,88 @@ public class BookingService {
         return bookingRepository.findByUserId(userId);
     }
 
-    public void cancelBooking(Long id) {
-        bookingRepository.findById(id).ifPresent(booking -> {
-            if (booking.getStatus() != BookingStatus.PENDING) {
-                throw new IllegalStateException("Only pending bookings can be cancelled.");
-            }
+    public Booking approveBooking(Long id) {
+        Booking booking = getBooking(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
+        if (booking.getStatus() != BookingStatus.PENDING) {
+            throw new IllegalStateException("Only pending bookings can be approved.");
+        }
+        booking.setStatus(BookingStatus.APPROVED);
+        return bookingRepository.save(booking);
+    }
 
-            // Refund the user
-            String refundUrl = userServiceUrl + "/api/users/" + booking.getUserId() + "/add?amount=" + booking.getAmount();
-            restTemplate.postForObject(refundUrl, null, Void.class);
-
-            // Set status to CANCELLED
-            booking.setStatus(BookingStatus.CANCELLED);
-            bookingRepository.save(booking);
-
-            // Set payment status to CANCELLED in PaymentService
-            String paymentServiceUrl = "http://payment-service/api/payments/booking/" + booking.getId() + "/cancel";
-            restTemplate.postForObject(paymentServiceUrl, null, Void.class);
-        });
+    public Booking startBooking(Long id) {
+        Booking booking = getBooking(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
+        if (booking.getStatus() != BookingStatus.APPROVED) {
+            throw new IllegalStateException("Only approved bookings can be started.");
+        }
+        booking.setStatus(BookingStatus.IN_USE);
+        bookingRepository.save(booking);
+        // Payment logic: Deduct from user, credit owner, create payment records
+        ChargingDto station = restTemplate.getForObject(
+                chargingServiceUrl + "/api/charging/" + booking.getStationId(), ChargingDto.class);
+        if (station == null) {
+            throw new RuntimeException("Station not found");
+        }
+        String deductUrl = userServiceUrl + "/api/users/" + booking.getUserId() + "/deduct?amount=" + booking.getAmount();
+        restTemplate.postForObject(deductUrl, null, Void.class);
+        String topUpUrl = userServiceUrl + "/api/users/" + station.getOwnerId() + "/topup?amount=" + booking.getAmount();
+        restTemplate.postForObject(topUpUrl, null, Void.class);
+        String paymentServiceUrl = "http://payment-service/api/payments";
+        // User payment record
+        java.util.Map<String, Object> paymentRequest = new java.util.HashMap<>();
+        paymentRequest.put("userId", booking.getUserId());
+        paymentRequest.put("amount", booking.getAmount());
+        paymentRequest.put("bookingId", booking.getId());
+        paymentRequest.put("status", "PAID");
+        restTemplate.postForObject(paymentServiceUrl, paymentRequest, Void.class);
+        // Owner credit record
+        java.util.Map<String, Object> ownerPaymentRequest = new java.util.HashMap<>();
+        ownerPaymentRequest.put("userId", station.getOwnerId());
+        ownerPaymentRequest.put("amount", booking.getAmount());
+        ownerPaymentRequest.put("bookingId", booking.getId());
+        ownerPaymentRequest.put("status", "OWNER_CREDITED");
+        restTemplate.postForObject(paymentServiceUrl, ownerPaymentRequest, Void.class);
+        return booking;
     }
 
     public Booking completeBooking(Long id) {
         Booking booking = getBooking(id)
                 .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
-
-        // Get the station info from ChargingService
-        ChargingDto station = restTemplate.getForObject(
-                chargingServiceUrl + "/api/charging/" + booking.getStationId(), ChargingDto.class);
-
-        if (station == null) {
-            throw new RuntimeException("Station not found");
+        if (booking.getStatus() != BookingStatus.IN_USE) {
+            throw new IllegalStateException("Only in-use bookings can be completed.");
         }
-
-        // Deduct from user
-        String deductUrl = userServiceUrl + "/api/users/" + booking.getUserId() + "/deduct?amount=" + booking.getAmount();
-        restTemplate.postForObject(deductUrl, null, Void.class);
-
-        // Credit the owner's balance
-        String topUpUrl = userServiceUrl + "/api/users/" + station.getOwnerId() + "/topup?amount=" + booking.getAmount();
-        restTemplate.postForObject(topUpUrl, null, Void.class);
-
-        // Create payment record for owner
-        String paymentServiceUrl = "http://payment-service/api/payments";
-        java.util.Map<String, Object> ownerPaymentRequest = new java.util.HashMap<>();
-        ownerPaymentRequest.put("userId", station.getOwnerId());
-        ownerPaymentRequest.put("amount", booking.getAmount());
-        ownerPaymentRequest.put("bookingId", booking.getId());
-        restTemplate.postForObject(paymentServiceUrl, ownerPaymentRequest, Void.class);
-
-        // Update booking status
         booking.setStatus(BookingStatus.COMPLETED);
         bookingRepository.save(booking);
-
-        // Create payment record in PaymentService
-        java.util.Map<String, Object> paymentRequest = new java.util.HashMap<>();
-        paymentRequest.put("userId", booking.getUserId());
-        paymentRequest.put("amount", booking.getAmount());
-        paymentRequest.put("bookingId", booking.getId());
-        restTemplate.postForObject(paymentServiceUrl, paymentRequest, Void.class);
-
         return booking;
+    }
+
+    public void cancelBooking(Long id) {
+        bookingRepository.findById(id).ifPresent(booking -> {
+            if (booking.getStatus() != BookingStatus.PENDING && booking.getStatus() != BookingStatus.APPROVED && booking.getStatus() != BookingStatus.IN_USE) {
+                throw new IllegalStateException("Only pending, approved, or in-use bookings can be cancelled.");
+            }
+            // Refund the user if IN_USE
+            if (booking.getStatus() == BookingStatus.IN_USE) {
+                // Refund user
+                String refundUrl = userServiceUrl + "/api/users/" + booking.getUserId() + "/add?amount=" + booking.getAmount();
+                restTemplate.postForObject(refundUrl, null, Void.class);
+                // Deduct from owner
+                ChargingDto station = restTemplate.getForObject(
+                    chargingServiceUrl + "/api/charging/" + booking.getStationId(), ChargingDto.class);
+                if (station != null) {
+                    String ownerDeductUrl = userServiceUrl + "/api/users/" + station.getOwnerId() + "/deduct?amount=" + booking.getAmount();
+                    restTemplate.postForObject(ownerDeductUrl, null, Void.class);
+                }
+            }
+            // Set status to CANCELLED
+            booking.setStatus(BookingStatus.CANCELLED);
+            bookingRepository.save(booking);
+            // Set payment status to CANCELLED in PaymentService
+            String paymentServiceUrl = "http://payment-service/api/payments/booking/" + booking.getId() + "/cancel";
+            restTemplate.postForObject(paymentServiceUrl, null, Void.class);
+        });
     }
 
     public List<ChargingDto> getAvailableStations(LocalDateTime start, LocalDateTime end) {
@@ -175,6 +198,30 @@ public class BookingService {
 
     public List<Booking> getBookingsByStationIds(List<Long> stationIds) {
         return bookingRepository.findByStationIdIn(stationIds);
+    }
+
+    public boolean isStationInUse(Long stationId) {
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        return bookingRepository.existsInUse(stationId, now);
+    }
+
+    @Scheduled(fixedRate = 60000) // every 1 minute
+    public void autoUpdateBookingStatuses() {
+        LocalDateTime now = LocalDateTime.now();
+        // APPROVED -> IN_USE
+        List<Booking> toStart = bookingRepository.findAll().stream()
+            .filter(b -> b.getStatus() == BookingStatus.APPROVED && b.getStartTime().isBefore(now.plusSeconds(1)))
+            .toList();
+        for (Booking b : toStart) {
+            startBooking(b.getId());
+        }
+        // IN_USE -> COMPLETED
+        List<Booking> toComplete = bookingRepository.findAll().stream()
+            .filter(b -> b.getStatus() == BookingStatus.IN_USE && b.getEndTime().isBefore(now.plusSeconds(1)))
+            .toList();
+        for (Booking b : toComplete) {
+            completeBooking(b.getId());
+        }
     }
 
 }

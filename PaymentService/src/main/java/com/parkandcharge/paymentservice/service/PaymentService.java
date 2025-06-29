@@ -24,7 +24,9 @@ public class PaymentService {
     }
 
     public Payment makePayment(Payment payment) {
-        payment.setStatus("PAID"); // For mock
+        if (payment.getStatus() == null || payment.getStatus().isEmpty()) {
+            payment.setStatus("PAID");
+        }
         payment.setPaymentTime(LocalDateTime.now());
         return paymentRepo.save(payment);
     }

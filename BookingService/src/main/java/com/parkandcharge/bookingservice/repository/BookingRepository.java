@@ -16,4 +16,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "((b.startTime < :end) AND (b.endTime > :start))")
     List<Long> findConflictingStationIds(@Param("start") LocalDateTime start,
                                          @Param("end") LocalDateTime end);
+
+    @Query("SELECT COUNT(b) > 0 FROM Booking b WHERE b.stationId = :stationId AND b.status = 'IN_USE' AND b.startTime <= :now AND b.endTime >= :now")
+    boolean existsInUse(@Param("stationId") Long stationId, @Param("now") LocalDateTime now);
 }
