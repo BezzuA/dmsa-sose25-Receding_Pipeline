@@ -7,6 +7,7 @@ import com.parkandcharge.userservice.repository.UserRepository;
 import com.parkandcharge.userservice.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +33,9 @@ public class UserController {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Value("${payment.service.url:http://payment-service}")
+    private String paymentServiceUrl;
 
     @PostMapping("/signup")
     public ResponseEntity<User> signup(@RequestBody RegisterRequest request) {
@@ -86,7 +90,7 @@ public class UserController {
         paymentPayload.put("amount", amount);
 
         // POST to PaymentService
-        String paymentUrl = "http://paymentservice/api/payments";
+        String paymentUrl = paymentServiceUrl + "/api/payments";
         PaymentDto paymentResponse = restTemplate.postForObject(paymentUrl, paymentPayload, PaymentDto.class);
 
         if (paymentResponse == null || !"PAID".equals(paymentResponse.getStatus())) {
@@ -104,6 +108,12 @@ public class UserController {
     @PostMapping("/{id}/deduct")
     public ResponseEntity<Void> deductBalance(@PathVariable Long id, @RequestParam double amount) {
         userService.deductBalance(id, amount);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{userId}/add")
+    public ResponseEntity<Void> addBalance(@PathVariable Long userId, @RequestParam double amount) {
+        userService.addBalance(userId, amount);
         return ResponseEntity.ok().build();
     }
 

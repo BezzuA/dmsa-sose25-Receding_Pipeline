@@ -6,6 +6,8 @@ import com.parkandcharge.bookingservice.service.BookingService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,9 +18,13 @@ import java.util.Optional;
 @CrossOrigin
 public class BookingController {
     private final BookingService bookingService;
+    private final RestTemplate restTemplate;
+    @Value("${charging.service.url:http://charging-service}")
+    private String chargingServiceUrl;
 
-    public BookingController(BookingService bookingService) {
+    public BookingController(BookingService bookingService, RestTemplate restTemplate) {
         this.bookingService = bookingService;
+        this.restTemplate = restTemplate;
     }
 
     @GetMapping
@@ -61,5 +67,13 @@ public class BookingController {
     @PostMapping("/book")
     public ResponseEntity<Booking> bookStation(@RequestBody BookingRequestDto request) {
         return ResponseEntity.ok(bookingService.bookStation(request));
+    }
+
+    @GetMapping("/owner-bookings")
+    public List<Booking> getBookingsForOwner(@RequestParam Long ownerId) {
+        String url = chargingServiceUrl + "/api/charging/owner/charging-ids?ownerId=" + ownerId;
+        List<Integer> chargingIds = restTemplate.getForObject(url, List.class);
+        List<Long> stationIds = chargingIds == null ? List.of() : chargingIds.stream().map(Integer::longValue).toList();
+        return bookingService.getBookingsByStationIds(stationIds);
     }
 }

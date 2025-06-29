@@ -28,9 +28,9 @@ function Payment() {
         <tbody>
           {payments.map(item => (
             <tr key={item.id}>
-              <td>{item.date || item.createdAt}</td>
-              <td>${item.amount}</td>
-              <td>{item.status}</td>
+              <td>{item.paymentTime ? new Date(item.paymentTime).toLocaleString() : '-'}</td>
+              <td>${item.amount !== undefined ? Number(item.amount).toFixed(2) : '-'}</td>
+              <td>{item.status || '-'}</td>
             </tr>
           ))}
         </tbody>

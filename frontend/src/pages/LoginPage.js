@@ -20,13 +20,14 @@ function LoginPage({ onLogin }) {
   return (
     <div className="auth-container">
       <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="auth-form">
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
+          className="auth-input"
         />
         <input
           type="password"
@@ -34,8 +35,9 @@ function LoginPage({ onLogin }) {
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
+          className="auth-input"
         />
-        <button type="submit">Login</button>
+        <button type="submit" className="auth-button">Login</button>
         {error && <div className="error">{error}</div>}
       </form>
     </div>

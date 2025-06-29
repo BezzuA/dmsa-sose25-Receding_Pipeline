@@ -41,4 +41,14 @@ public class PaymentController {
     public List<Payment> getPaymentsByBooking(@PathVariable Long bookingId) {
         return paymentService.getPaymentsByBooking(bookingId);
     }
+
+    @PostMapping("/booking/{bookingId}/cancel")
+    public ResponseEntity<Void> cancelPaymentByBooking(@PathVariable Long bookingId) {
+        List<Payment> payments = paymentService.getPaymentsByBooking(bookingId);
+        for (Payment payment : payments) {
+            payment.setStatus("CANCELLED");
+            paymentService.makePayment(payment); // reuses makePayment to save
+        }
+        return ResponseEntity.ok().build();
+    }
 }

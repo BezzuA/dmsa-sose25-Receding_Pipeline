@@ -22,9 +22,9 @@ function BookCharging() {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) return setMessage('User not found');
     try {
-      await bookStation({ userId: user.id, stationId: selectedStation, start, end });
+      await bookStation({ userId: user.id, stationId: selectedStation, startTime: start, endTime: end });
       setMessage('Booking successful!');
-    } catch {
+    } catch (err) {
       setMessage('Booking failed.');
     }
   };

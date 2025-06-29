@@ -50,4 +50,11 @@ public class ChargingService {
     public List<Charging> getStationsByOwner(Long ownerId) {
         return stationRepo.findByOwnerId(ownerId);
     }
+
+    public List<Long> getChargingIdsByOwner(Long ownerId) {
+        return stationRepo.findByOwnerId(ownerId)
+                .stream()
+                .map(Charging::getId)
+                .toList();
+    }
 }

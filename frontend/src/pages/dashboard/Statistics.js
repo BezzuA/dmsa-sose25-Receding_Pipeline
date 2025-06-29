@@ -20,7 +20,7 @@ function Statistics() {
         </thead>
         <tbody>
           {stats.map(item => (
-            <tr key={item.id}>
+            <tr key={item.stationId || item.id}>
               <td>{item.stationName || item.stationId}</td>
               <td>{item.totalSessions}</td>
               <td>${item.totalAmount}</td>

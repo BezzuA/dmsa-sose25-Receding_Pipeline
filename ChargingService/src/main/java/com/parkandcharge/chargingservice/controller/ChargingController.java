@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/stations")
+@RequestMapping("/api/charging")
+@CrossOrigin
 public class ChargingController {
 
     @Autowired
@@ -46,5 +47,10 @@ public class ChargingController {
     @GetMapping("/owner/{ownerId}")
     public ResponseEntity<List<Charging>> getByOwner(@PathVariable Long ownerId) {
         return ResponseEntity.ok(chargingService.getStationsByOwner(ownerId));
+    }
+
+    @GetMapping("/owner/charging-ids")
+    public List<Long> getChargingIdsByOwner(@RequestParam Long ownerId) {
+        return chargingService.getChargingIdsByOwner(ownerId);
     }
 }
