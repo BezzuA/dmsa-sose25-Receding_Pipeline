@@ -13,8 +13,8 @@ context Charging {
         double latitude,
         double longitude,
 
-        datetime availableFrom,
-        datetime availableUntil
+        date availableFrom,
+        date availableUntil
     }
 
     collection ChargingStationList { ChargingStation s }

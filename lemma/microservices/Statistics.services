@@ -1,6 +1,6 @@
-import datatypes  from "../../domain/Statistics.data"          as StatsDomain
-import technology from "../../technology/JavaSpring.technology"  as JavaSpring
-import technology from "../../technology/Protocols.technology"   as Protocols
+import datatypes  from "../domain/Statistics.data"          as StatsDomain
+import technology from "../technology/JavaSpring.technology"  as JavaSpring
+import technology from "../technology/Protocols.technology"   as Protocols
 
 @technology(JavaSpring)
 @technology(Protocols)
@@ -10,16 +10,12 @@ public functional microservice com.parkandcharge.statisticsservice.StatisticsSer
     @endpoints(Protocols::_protocols.rest: "/api/statistics";)
     interface StatisticsApi {
 
-        ---               /* owner-specific query */
-        Get statistics for an owner
-        @required ownerId
-        ---
         @endpoints(Protocols::_protocols.rest: "/owner/{ownerId}";)
         @JavaSpring::_aspects.GetMapping
         getStatsByOwner(
             @JavaSpring::_aspects.PathVariable
             sync in  ownerId : long,
-            sync out stats   : StatsDomain::OwnerStatistics
+            sync out stats   : StatsDomain::Statistics.OwnerStatistics
         );
 
         ---
@@ -27,12 +23,9 @@ public functional microservice com.parkandcharge.statisticsservice.StatisticsSer
         ---
         @JavaSpring::_aspects.GetMapping
         getAllStats(
-            sync out allStats : StatsDomain::OwnerStatisticsList
+            sync out allStats : StatsDomain::Statistics.OwnerStatisticsList
         );
 
-        ---
-        Update statistics (increment totals)
-        ---
         @endpoints(Protocols::_protocols.rest: "/update";)
         @JavaSpring::_aspects.PostMapping
         updateStatistics(

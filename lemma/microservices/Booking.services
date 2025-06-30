@@ -1,6 +1,6 @@
-import datatypes   from "../../domain/Booking.data"     as BookingDomain
-import technology  from "../../technology/JavaSpring.technology"  as JavaSpring
-import technology  from "../../technology/Protocols.technology"   as Protocols
+import datatypes   from "../domain/Booking.data"     as BookingDomain
+import technology  from "../technology/JavaSpring.technology"  as JavaSpring
+import technology  from "../technology/Protocols.technology"   as Protocols
 
 @technology(JavaSpring)
 @technology(Protocols)
@@ -18,7 +18,7 @@ public functional microservice com.parkandcharge.bookingservice.BookingService {
         @JavaSpring::_aspects.GetMapping
         getAllBookings(
             // returns a list of bookings
-            sync out bookings : BookingDomain::Bookings
+            sync out bookings : BookingDomain::Booking.Bookings
         );
 
         ---                                          
@@ -31,7 +31,7 @@ public functional microservice com.parkandcharge.bookingservice.BookingService {
             @JavaSpring::_aspects.PathVariable
             sync in  id      : long,
 
-            sync out booking : BookingDomain::Booking
+            sync out booking : BookingDomain::Booking.Bookings
         );
 
         ---                                          
@@ -41,9 +41,9 @@ public functional microservice com.parkandcharge.bookingservice.BookingService {
         @JavaSpring::_aspects.PostMapping
         createBooking(
             @JavaSpring::_aspects.RequestBody
-            sync in  booking  : BookingDomain::Booking,
+            sync in  booking  : BookingDomain::Booking.Bookings,
 
-            sync out created  : BookingDomain::Booking
+            sync out created  : BookingDomain::Booking.Bookings
         );
 
         ---                                          
@@ -67,7 +67,7 @@ public functional microservice com.parkandcharge.bookingservice.BookingService {
             @JavaSpring::_aspects.PathVariable
             sync in  userId   : long,
 
-            sync out bookings : BookingDomain::Bookings
+            sync out bookings : BookingDomain::Booking.Bookings
         );
 
         ---                                          
@@ -80,24 +80,20 @@ public functional microservice com.parkandcharge.bookingservice.BookingService {
             @JavaSpring::_aspects.PathVariable
             sync in  id      : long,
 
-            sync out booking : BookingDomain::Booking
+            sync out booking : BookingDomain::Booking.Bookings
         );
-
-        ---                                          
-        List available stations                     
-        @required start,end  Time range             
-        ---                                          
+                                        
         @endpoints(Protocols::_protocols.rest: "/available";)
         @JavaSpring::_aspects.GetMapping
         getAvailableStations(
             // Spring’s @RequestParam → generic query-param aspect
             @JavaSpring::_aspects.RequestParam
-            sync in  start    : datetime,
+            sync in  start    : date,
 
             @JavaSpring::_aspects.RequestParam
-            sync in  end      : datetime,
+            sync in  end      : date,
 
-            sync out stations : BookingDomain::API.ChargingDto[]
+            sync out stations : BookingDomain::API.ChargingDto
         );
 
         ---                                          
@@ -110,7 +106,7 @@ public functional microservice com.parkandcharge.bookingservice.BookingService {
             @JavaSpring::_aspects.RequestBody
             sync in  request : BookingDomain::API.BookingRequestDto,
 
-            sync out booking : BookingDomain::Booking
+            sync out booking : BookingDomain::Booking.Bookings
         );
 
         @endpoints(Protocols::_protocols.rest: "/{id}/approve";)
@@ -119,7 +115,7 @@ public functional microservice com.parkandcharge.bookingservice.BookingService {
             @JavaSpring::_aspects.PathVariable
             sync in  id      : long,
 
-            sync out booking : BookingDomain::Booking
+            sync out booking : BookingDomain::Booking.Bookings
         );
 
         /* ➍  Start booking */
@@ -129,7 +125,7 @@ public functional microservice com.parkandcharge.bookingservice.BookingService {
             @JavaSpring::_aspects.PathVariable
             sync in  id      : long,
 
-            sync out booking : BookingDomain::Booking
+            sync out booking : BookingDomain::Booking.Bookings
         );
 
         /* Owner’s bookings */
@@ -139,7 +135,7 @@ public functional microservice com.parkandcharge.bookingservice.BookingService {
             @JavaSpring::_aspects.RequestParam
             sync in  ownerId  : long,
 
-            sync out bookings : BookingDomain::Bookings
+            sync out bookings : BookingDomain::Booking.Bookings
         );
 
         /*  Is station in use? */
@@ -156,7 +152,7 @@ public functional microservice com.parkandcharge.bookingservice.BookingService {
         @endpoints(Protocols::_protocols.rest: "/in-use-station-ids";)
         @JavaSpring::_aspects.GetMapping
         getInUseStationIds(
-            sync out stationIds : BookingDomain::StationIds
+            sync out stationIds : BookingDomain::Booking.StationIds
         );
     }
 }

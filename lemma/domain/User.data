@@ -30,7 +30,7 @@ context User {
     structure UserAccountService<service> {
         function Users        getAllUsers(),
         function UserAccount  getUserById(long id),
-        function UserAccount  createUser(API::RegisterRequest request),
+        function UserAccount  createUser(API.RegisterRequest request),
         procedure             deleteUser(long id),
         function UserAccount  authenticate(string email, string password),
         function UserAccount  updateUser(long id, UserAccount user),
@@ -44,7 +44,7 @@ context API {
         string username,
         string email,
         string password,
-        Role role
+        User.Role role
     }
 
     structure AuthRequest<valueObject> {

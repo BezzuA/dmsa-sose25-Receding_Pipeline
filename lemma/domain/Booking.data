@@ -3,10 +3,10 @@ context Booking {
         long id<identifier>,
         long userId,
         long stationId,
-        datetime startTime,
-        datetime endTime,
+        date startTime,
+        date endTime,
         double amount,
-        BookingStatus status = BookingStatus.PENDING
+        BookingStatus status
     }
 
     enum BookingStatus {
@@ -30,11 +30,11 @@ context Booking {
         function Booking   startBooking(long id),
         function Booking   completeBooking(long id),
         function Bookings  getBookingsByUserId(long userId),
-        function Bookings  getAvailableStations(datetime start, datetime end),
-        function Booking   bookStation(API::BookingRequestDto request),
+        function Bookings  getAvailableStations(date start, date end),
+        function Booking   bookStation(API.BookingRequestDto request),
         function Bookings  getBookingsByStationIds(StationIds ids),
         function boolean   isStationInUse(long stationId),
-        procedure          autoUpdateBookingStatuses                
+        procedure          autoUpdateBookingStatuses()            
     }
 }
 
@@ -44,8 +44,8 @@ context API {
     structure BookingRequestDto<valueObject> {
         long     userId,
         long     stationId,
-        datetime startTime,
-        datetime endTime,
+        date startTime,
+        date endTime,
         double   amount
     }
 
@@ -58,7 +58,7 @@ context API {
         double   latitude,
         double   longitude,
         long     ownerId,
-        datetime availableFrom,
-        datetime availableUntil
+        date availableFrom,
+        date availableUntil
     }
 }

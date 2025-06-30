@@ -1,6 +1,6 @@
-import datatypes  from "../../domain/Charging.data"         as ChargingDomain
-import technology from "../../technology/JavaSpring.technology"  as JavaSpring
-import technology from "../../technology/Protocols.technology"   as Protocols
+import datatypes  from "../domain/Charging.data"         as ChargingDomain
+import technology from "../technology/JavaSpring.technology"  as JavaSpring
+import technology from "../technology/Protocols.technology"   as Protocols
 
 @technology(JavaSpring)
 @technology(Protocols)
@@ -16,7 +16,7 @@ public functional microservice com.parkandcharge.chargingservice.ChargingService
         ---
         @JavaSpring::_aspects.GetMapping
         getAllStations(
-            sync out stations : ChargingDomain::ChargingStationList
+            sync out stations : ChargingDomain::Charging.ChargingStationList
         );
 
         --- 
@@ -29,7 +29,7 @@ public functional microservice com.parkandcharge.chargingservice.ChargingService
             @JavaSpring::_aspects.PathVariable
             sync in  id      : long,
 
-            sync out station : ChargingDomain::ChargingStation
+            sync out station : ChargingDomain::Charging.ChargingStation
         );
 
         --- 
@@ -39,15 +39,11 @@ public functional microservice com.parkandcharge.chargingservice.ChargingService
         @JavaSpring::_aspects.PostMapping
         createStation(
             @JavaSpring::_aspects.RequestBody
-            sync in  station  : ChargingDomain::ChargingStation,
+            sync in  station  : ChargingDomain::Charging.ChargingStation,
 
-            sync out created  : ChargingDomain::ChargingStation
+            sync out created  : ChargingDomain::Charging.ChargingStation
         );
 
-        --- 
-        Update station 
-        @required id  Station to update 
-        ---
         @endpoints(Protocols::_protocols.rest: "/{id}";)
         @JavaSpring::_aspects.PutMapping
         updateStation(
@@ -55,9 +51,9 @@ public functional microservice com.parkandcharge.chargingservice.ChargingService
             sync in  id       : long,
 
             @JavaSpring::_aspects.RequestBody
-            sync in  station  : ChargingDomain::ChargingStation,
+            sync in  station  : ChargingDomain::Charging.ChargingStation,
 
-            sync out updated  : ChargingDomain::ChargingStation
+            sync out updated  : ChargingDomain::Charging.ChargingStation
         );
 
         --- 
@@ -81,19 +77,15 @@ public functional microservice com.parkandcharge.chargingservice.ChargingService
             @JavaSpring::_aspects.PathVariable
             sync in  ownerId  : long,
 
-            sync out stations : ChargingDomain::ChargingStationList
+            sync out stations : ChargingDomain::Charging.ChargingStationList
         );
 
-        ---
-        IDs of stations owned by a user
-        @required ownerId
-        ---
         @endpoints(Protocols::_protocols.rest: "/owner/charging-ids";)
         @JavaSpring::_aspects.GetMapping
         getChargingIdsByOwner(
             @JavaSpring::_aspects.RequestParam
             sync in  ownerId : long,
-            sync out ids     : ChargingDomain::ChargingStationIds
+            sync out ids     : ChargingDomain::Charging.ChargingStationIds
         );
 
          ---
@@ -102,7 +94,7 @@ public functional microservice com.parkandcharge.chargingservice.ChargingService
         @endpoints(Protocols::_protocols.rest: "/available";)
         @JavaSpring::_aspects.GetMapping
         getAvailableStations(
-            sync out stations : ChargingDomain::ChargingStationList
+            sync out stations : ChargingDomain::Charging.ChargingStationList
         );
     }
 }

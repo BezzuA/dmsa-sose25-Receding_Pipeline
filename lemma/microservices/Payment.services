@@ -1,6 +1,6 @@
-import datatypes  from "../../domain/Payment.data"          as PaymentDomain
-import technology from "../../technology/JavaSpring.technology"  as JavaSpring
-import technology from "../../technology/Protocols.technology"   as Protocols
+import datatypes  from "../domain/Payment.data"          as PaymentDomain
+import technology from "../technology/JavaSpring.technology"  as JavaSpring
+import technology from "../technology/Protocols.technology"   as Protocols
 
 @technology(JavaSpring)
 @technology(Protocols)
@@ -16,7 +16,7 @@ public functional microservice com.parkandcharge.paymentservice.PaymentService {
         ---
         @JavaSpring::_aspects.GetMapping
         getAllPayments(
-            sync out payments : PaymentDomain::Payments
+            sync out payments : PaymentDomain::Payment.Payments
         );
 
         --- 
@@ -29,7 +29,7 @@ public functional microservice com.parkandcharge.paymentservice.PaymentService {
             @JavaSpring::_aspects.PathVariable
             sync in  id      : long,
 
-            sync out payment : PaymentDomain::Payment
+            sync out payment : PaymentDomain::Payment.Payment
         );
 
         --- 
@@ -39,9 +39,9 @@ public functional microservice com.parkandcharge.paymentservice.PaymentService {
         @JavaSpring::_aspects.PostMapping
         makePayment(
             @JavaSpring::_aspects.RequestBody
-            sync in  payment  : PaymentDomain::Payment,
+            sync in  payment  : PaymentDomain::Payment.Payment,
 
-            sync out created  : PaymentDomain::Payment
+            sync out created  : PaymentDomain::Payment.Payment
         );
 
         --- 
@@ -54,7 +54,7 @@ public functional microservice com.parkandcharge.paymentservice.PaymentService {
             @JavaSpring::_aspects.PathVariable
             sync in  userId   : long,
 
-            sync out payments : PaymentDomain::Payments
+            sync out payments : PaymentDomain::Payment.Payments
         );
 
         --- 
@@ -67,7 +67,7 @@ public functional microservice com.parkandcharge.paymentservice.PaymentService {
             @JavaSpring::_aspects.PathVariable
             sync in  bookingId : long,
 
-            sync out payments  : PaymentDomain::Payments
+            sync out payments  : PaymentDomain::Payment.Payments
         );
 
         @endpoints(Protocols::_protocols.rest: "/booking/{bookingId}/cancel";)

@@ -16,7 +16,7 @@ context Payment {
         double amount,
         string status,            // e.g. "PAID", "FAILED"
 
-        datetime paymentTime
+        date paymentTime
     }
 
 

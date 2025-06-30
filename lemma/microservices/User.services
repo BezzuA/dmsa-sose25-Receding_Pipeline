@@ -1,6 +1,6 @@
-import datatypes  from "../../domain/User.data"           as UserDomain
-import technology from "../../technology/JavaSpring.technology"  as JavaSpring
-import technology from "../../technology/Protocols.technology"   as Protocols
+import datatypes  from "../domain/User.data"           as UserDomain
+import technology from "../technology/JavaSpring.technology"  as JavaSpring
+import technology from "../technology/Protocols.technology"   as Protocols
 
 @technology(JavaSpring)
 @technology(Protocols)
@@ -11,42 +11,25 @@ public functional microservice com.parkandcharge.userservice.UserService {
     @endpoints(Protocols::_protocols.rest: "/api/users";)
     interface UsersApi {
 
-        ------------------------------------------------------------
-        //  1.  Registration & authentication
-        ------------------------------------------------------------
-
-        ---
-        Sign-up a new user
-        ---
+        
         @endpoints(Protocols::_protocols.rest: "/signup";)
         @JavaSpring::_aspects.PostMapping
         signup(
             @JavaSpring::_aspects.RequestBody
             sync in  request : UserDomain::API.RegisterRequest,
 
-            sync out user    : UserDomain::UserAccount
+            sync out user    : UserDomain::User.UserAccount
         );
 
-        ---
-        Sign-in (email & password)
-        ---
         @endpoints(Protocols::_protocols.rest: "/signin";)
         @JavaSpring::_aspects.PostMapping
         signin(
             @JavaSpring::_aspects.RequestBody
             sync in  credentials : UserDomain::API.AuthRequest,
 
-            sync out user        : UserDomain::UserAccount
+            sync out user        : UserDomain::User.UserAccount
         );
 
-        ------------------------------------------------------------
-        //  2.  CRUD operations
-        ------------------------------------------------------------
-
-        ---
-        Update user
-        @required id  User ID to update
-        ---
         @endpoints(Protocols::_protocols.rest: "/{id}";)
         @JavaSpring::_aspects.PutMapping
         updateUser(
@@ -54,9 +37,9 @@ public functional microservice com.parkandcharge.userservice.UserService {
             sync in  id      : long,
 
             @JavaSpring::_aspects.RequestBody
-            sync in  user    : UserDomain::UserAccount,
+            sync in  user    : UserDomain::User.UserAccount,
 
-            sync out updated : UserDomain::UserAccount
+            sync out updated : UserDomain::User.UserAccount
         );
 
         ---
@@ -64,7 +47,7 @@ public functional microservice com.parkandcharge.userservice.UserService {
         ---
         @JavaSpring::_aspects.GetMapping
         getAllUsers(
-            sync out users : UserDomain::Users
+            sync out users : UserDomain::User.Users
         );
 
         ---
@@ -77,18 +60,15 @@ public functional microservice com.parkandcharge.userservice.UserService {
             @JavaSpring::_aspects.PathVariable
             sync in  id   : long,
 
-            sync out user : UserDomain::UserAccount
+            sync out user : UserDomain::User.UserAccount
         );
 
-        ---
-        Alternative create endpoint
-        ---
         @JavaSpring::_aspects.PostMapping
         createUser(
             @JavaSpring::_aspects.RequestBody
             sync in  request : UserDomain::API.RegisterRequest,
 
-            sync out user    : UserDomain::UserAccount
+            sync out user    : UserDomain::User.UserAccount
         );
 
         ---
@@ -102,14 +82,6 @@ public functional microservice com.parkandcharge.userservice.UserService {
             sync in id : long
         );
 
-        ------------------------------------------------------------
-        //  3.  Balance operations
-        ------------------------------------------------------------
-
-        ---
-        Get current balance
-        @required id  User ID
-        ---
         @endpoints(Protocols::_protocols.rest: "/{id}/balance";)
         @JavaSpring::_aspects.GetMapping
         getBalance(
@@ -119,10 +91,6 @@ public functional microservice com.parkandcharge.userservice.UserService {
             sync out balance  : double
         );
 
-        ---
-        Top-up balance
-        @required id, amount
-        ---
         @endpoints(Protocols::_protocols.rest: "/{id}/topup";)
         @JavaSpring::_aspects.PostMapping
         topUp(
@@ -135,10 +103,6 @@ public functional microservice com.parkandcharge.userservice.UserService {
             sync out balance : double
         );
 
-        ---
-        Deduct balance
-        @required id, amount
-        ---
         @endpoints(Protocols::_protocols.rest: "/{id}/deduct";)
         @JavaSpring::_aspects.PostMapping
         deductBalance(
@@ -149,10 +113,6 @@ public functional microservice com.parkandcharge.userservice.UserService {
             sync in amount : double
         );
 
-        ---
-        Add (credit) balance
-        @required userId, amount
-        ---
         @endpoints(Protocols::_protocols.rest: "/{userId}/add";)
         @JavaSpring::_aspects.PostMapping
         addBalance(
