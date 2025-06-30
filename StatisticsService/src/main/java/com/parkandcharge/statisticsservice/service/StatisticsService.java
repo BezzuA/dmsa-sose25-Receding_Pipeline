@@ -1,27 +1,64 @@
 package com.parkandcharge.statisticsservice.service;
 import com.parkandcharge.statisticsservice.model.Statistics;
+import com.parkandcharge.statisticsservice.repository.StatisticsRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 
 @Service
 public class StatisticsService {
 
-    public Statistics getStationStats(Long stationId) {
-        // Mock example data
-        Statistics stats = new Statistics();
-        stats.setStationId(stationId);
-        stats.setTotalBookings(new Random().nextInt(100)); // random bookings
-        stats.setTotalEarnings(stats.getTotalBookings() * 5.0); // e.g., $5 per booking
-        return stats;
+    private final StatisticsRepository statisticsRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
+    @Value("${charging.service.url:http://localhost:8082/api/charging}")
+    private String chargingServiceUrl;
+
+    public StatisticsService(StatisticsRepository statisticsRepository) {
+        this.statisticsRepository = statisticsRepository;
     }
 
     public List<Statistics> getAllStats() {
-        // Mock a few stations
-        List<Statistics> statsList = new ArrayList<>();
-        for (long i = 1; i <= 3; i++) {
-            statsList.add(getStationStats(i));
+        return statisticsRepository.findAll();
+    }
+
+    public Statistics getStatsByOwner(Long ownerId) {
+        return statisticsRepository.findById(ownerId).orElse(null);
+    }
+
+    private List<Long> fetchStationIdsByOwner(Long ownerId) {
+        String url = chargingServiceUrl + "/owner/" + ownerId;
+        try {
+            ChargingStationDto[] stations = restTemplate.getForObject(url, ChargingStationDto[].class);
+            if (stations == null) return Collections.emptyList();
+            List<Long> ids = new ArrayList<>();
+            for (ChargingStationDto station : stations) {
+                ids.add(station.getId());
+            }
+            return ids;
+        } catch (Exception e) {
+            return Collections.emptyList();
         }
-        return statsList;
+    }
+
+    private static class ChargingStationDto {
+        private Long id;
+        public Long getId() { return id; }
+        public void setId(Long id) { this.id = id; }
+    }
+
+    public void updateStatistics(Long ownerId, double amount) {
+        Statistics stats = statisticsRepository.findById(ownerId).orElse(null);
+        if (stats == null) {
+            stats = new Statistics();
+            stats.setOwnerId(ownerId);
+            stats.setTotalBookings(1);
+            stats.setTotalEarnings(amount);
+        } else {
+            stats.setTotalBookings(stats.getTotalBookings() + 1);
+            stats.setTotalEarnings(stats.getTotalEarnings() + amount);
+        }
+        statisticsRepository.save(stats);
     }
 }

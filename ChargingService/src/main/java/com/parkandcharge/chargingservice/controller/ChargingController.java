@@ -53,4 +53,9 @@ public class ChargingController {
     public List<Long> getChargingIdsByOwner(@RequestParam Long ownerId) {
         return chargingService.getChargingIdsByOwner(ownerId);
     }
+
+    @GetMapping("/available")
+    public ResponseEntity<List<Charging>> getAvailableStations() {
+        return ResponseEntity.ok(chargingService.getAvailableStations());
+    }
 }

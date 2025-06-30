@@ -32,6 +32,9 @@ public class BookingService {
     @Value("${user.service.url:http://user-service}")
     private String userServiceUrl;
 
+    @Value("${statistics.service.url:http://statistics-service}")
+    private String statisticsServiceUrl;
+
     public BookingService(BookingRepository bookingRepository) {
         this.bookingRepository = bookingRepository;
     }
@@ -108,6 +111,23 @@ public class BookingService {
         }
         booking.setStatus(BookingStatus.COMPLETED);
         bookingRepository.save(booking);
+        // Notify statistics service
+        try {
+            // Fetch ownerId from ChargingService
+            ChargingDto station = restTemplate.getForObject(
+                chargingServiceUrl + "/api/charging/" + booking.getStationId(), ChargingDto.class);
+            if (station == null) {
+                throw new RuntimeException("Station not found");
+            }
+            Long ownerId = station.getOwnerId();
+            String url = statisticsServiceUrl + "/api/statistics/update";
+            java.util.Map<String, Object> payload = new java.util.HashMap<>();
+            payload.put("ownerId", ownerId);
+            payload.put("amount", booking.getAmount());
+            restTemplate.postForObject(url, payload, Void.class);
+        } catch (Exception e) {
+            System.err.println("Failed to update statistics: " + e.getMessage());
+        }
         return booking;
     }
 

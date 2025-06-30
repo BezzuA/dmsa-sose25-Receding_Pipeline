@@ -1,5 +1,6 @@
 import React from 'react';
 import './Sidebar.css';
+import { NavLink } from 'react-router-dom';
 
 const Sidebar = ({ onNavigate, active }) => {
   const menu = [
@@ -10,6 +11,9 @@ const Sidebar = ({ onNavigate, active }) => {
     'Statistics',
     'Settings',
   ];
+  // const user = JSON.parse(localStorage.getItem('user'));
+  // const isOwner = user && user.role === 'OWNER';
+
   return (
     <div className="sidebar">
       <h2>Dashboard</h2>
@@ -23,6 +27,7 @@ const Sidebar = ({ onNavigate, active }) => {
             {item}
           </li>
         ))}
+        {/* Removed conditional NavLink for Statistics */}
       </ul>
     </div>
   );

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -90,5 +91,16 @@ public class BookingController {
     @GetMapping("/station/{stationId}/in-use")
     public boolean isStationInUse(@PathVariable Long stationId) {
         return bookingService.isStationInUse(stationId);
+    }
+
+    @GetMapping("/in-use-station-ids")
+    public List<Long> getInUseStationIds() {
+        LocalDateTime now = LocalDateTime.now();
+        return bookingService.getAllBookings().stream()
+            .filter(b -> b.getStatus() == com.parkandcharge.bookingservice.model.BookingStatus.IN_USE
+                && b.getStartTime().isBefore(now)
+                && b.getEndTime().isAfter(now))
+            .map(b -> b.getStationId())
+            .collect(Collectors.toList());
     }
 }

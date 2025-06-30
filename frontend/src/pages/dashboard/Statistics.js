@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { getAllStats } from '../../api/statisticsApi';
+import { getStatsByOwner } from '../../api/statisticsApi';
 
 function Statistics() {
-  const [stats, setStats] = useState([]);
+  const [stats, setStats] = useState(null);
+  const user = JSON.parse(localStorage.getItem('user'));
+  const ownerId = user?.id;
   useEffect(() => {
-    getAllStats().then(res => setStats(res.data));
-  }, []);
+    if (ownerId) {
+      getStatsByOwner(ownerId).then(res => setStats(res.data));
+    }
+  }, [ownerId]);
 
   return (
     <div style={{ padding: '2rem' }}>
@@ -13,19 +17,21 @@ function Statistics() {
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
-            <th>Station</th>
+            <th>Owner</th>
             <th>Total Sessions</th>
             <th>Total Amount</th>
           </tr>
         </thead>
         <tbody>
-          {stats.map(item => (
-            <tr key={item.stationId || item.id}>
-              <td>{item.stationName || item.stationId}</td>
-              <td>{item.totalSessions}</td>
-              <td>${item.totalAmount}</td>
+          {stats ? (
+            <tr key={stats.ownerId}>
+              <td>{user?.email || stats.ownerId}</td>
+              <td>{stats.totalBookings}</td>
+              <td>${stats.totalEarnings}</td>
             </tr>
-          ))}
+          ) : (
+            <tr><td colSpan="3">No statistics available.</td></tr>
+          )}
         </tbody>
       </table>
     </div>
