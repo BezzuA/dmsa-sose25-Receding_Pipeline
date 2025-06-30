@@ -44,25 +44,6 @@ lemma/
  └─ technology/    # Docker, JavaSpring, Protocol definitions
 ```
 
-Use the LEMMA Eclipse plug‑in or CLI to validate and generate code/compose files:
-
-```bash
-# Validate models
-java -jar lemma-cli.jar validate lemma/
-
-# Generate Spring code from Domain+Service models
-java -jar lemma-cli.jar generate \
-  --viewpoints domain,service --technology JavaSpring \
-  --models lemma/ --output generated/
-
-# Generate docker‑compose from Operation model
-java -jar lemma-cli.jar generate \
-  --viewpoints operation --technology Docker \
-  --models lemma/ --output deploy/
-```
-
----
-
 ## Quick Start
 
 ### Prerequisites
@@ -78,17 +59,17 @@ Run Eureka, Config Server & Gateway first, then the five core services – each
 ```bash
 # 1. Service Discovery
 cd EurekaServer      && ./gradlew bootRun
-# 2. Configuration Server
-cd ConfigServer      && ./gradlew bootRun
-# 3. API Gateway
-cd GatewayService    && ./gradlew bootRun
+# 2. Configuration Server (must be run in the project root folder)
+.\gradlew :ConfigServer:bootRun
+# 3. API Gateway (must be run in the project root folder)
+.\gradlew :GatewayService:bootRun
 
 # 4 ‑ 8. Domain micro‑services
-cd UserService       && ./gradlew bootRun        # 8081
-cd BookingService    && ./gradlew bootRun        # 8082
-cd PaymentService    && ./gradlew bootRun        # 8083
-cd ChargingService   && ./gradlew bootRun        # 8084
-cd StatisticsService && ./gradlew bootRun        # 8085
+cd UserService       && ./gradlew bootRun
+cd BookingService    && ./gradlew bootRun
+cd PaymentService    && ./gradlew bootRun
+cd ChargingService   && ./gradlew bootRun
+cd StatisticsService && ./gradlew bootRun
 ```
 
 ### 2 — Frontend
