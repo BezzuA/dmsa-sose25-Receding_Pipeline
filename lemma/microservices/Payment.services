@@ -69,5 +69,12 @@ public functional microservice com.parkandcharge.paymentservice.PaymentService {
 
             sync out payments  : PaymentDomain::Payments
         );
+
+        @endpoints(Protocols::_protocols.rest: "/booking/{bookingId}/cancel";)
+        @JavaSpring::_aspects.PostMapping
+        cancelPaymentsByBooking(
+            @JavaSpring::_aspects.PathVariable
+            sync in bookingId : long
+        );
     }
 }

@@ -25,7 +25,8 @@ context Payment {
         function Payment  getPayment(long id),
         function Payment  makePayment(Payment payment),
         function Payments getPaymentsByUser(long userId),
-        function Payments getPaymentsByBooking(long bookingId)
+        function Payments getPaymentsByBooking(long bookingId),
+        procedure          cancelPaymentsByBooking(long bookingId)
     }
 
     collection Payments { Payment p }

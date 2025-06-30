@@ -1,18 +1,24 @@
 context Statistics {
 
-    // ------------------------------
-    // Read-model concept : StationStatistics
-    // ------------------------------
-    structure StationStatistics<valueObject> {
-        long   stationId,
+    structure OwnerStatistics<aggregate, entity> {
+        long   ownerId<identifier>,        
         int    totalBookings,
         double totalEarnings
     }
 
-    collection StationStatisticsList { StationStatistics s }
+    collection OwnerStatisticsList { OwnerStatistics s }
 
-    structure StatisticsQueryService<service> {
-        function StationStatistics      getStationStats(long stationId),
-        function StationStatisticsList  getAllStats()
+    structure StatisticsService<service> {
+        function OwnerStatisticsList getAllStats(),
+        function OwnerStatistics     getStatsByOwner(long ownerId),
+        procedure                    updateStatistics(long ownerId, double amount)
+    }
+}
+
+/* Used by POST /api/statistics/update */
+context API {
+    structure UpdateStatisticsRequest<valueObject> {
+        long   ownerId,
+        double amount
     }
 }

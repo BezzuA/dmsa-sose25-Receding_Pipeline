@@ -7,29 +7,37 @@ import technology from "../../technology/Protocols.technology"   as Protocols
 @sync(Protocols::_protocols.rest)
 public functional microservice com.parkandcharge.statisticsservice.StatisticsService {
 
-    // Base path: /api/statistics
     @endpoints(Protocols::_protocols.rest: "/api/statistics";)
     interface StatisticsApi {
 
+        ---               /* owner-specific query */
+        Get statistics for an owner
+        @required ownerId
         ---
-        Get statistics for one station
-        @required stationId  ID of the charging station
-        ---
-        @endpoints(Protocols::_protocols.rest: "/station/{stationId}";)
+        @endpoints(Protocols::_protocols.rest: "/owner/{ownerId}";)
         @JavaSpring::_aspects.GetMapping
-        getStationStats(
+        getStatsByOwner(
             @JavaSpring::_aspects.PathVariable
-            sync in  stationId : long,
-
-            sync out stats     : StatsDomain::StationStatistics
+            sync in  ownerId : long,
+            sync out stats   : StatsDomain::OwnerStatistics
         );
 
         ---
-        Get statistics for all stations
+        Get statistics for all owners
         ---
         @JavaSpring::_aspects.GetMapping
         getAllStats(
-            sync out allStats : StatsDomain::StationStatisticsList
+            sync out allStats : StatsDomain::OwnerStatisticsList
+        );
+
+        ---
+        Update statistics (increment totals)
+        ---
+        @endpoints(Protocols::_protocols.rest: "/update";)
+        @JavaSpring::_aspects.PostMapping
+        updateStatistics(
+            @JavaSpring::_aspects.RequestBody
+            sync in request : StatsDomain::API.UpdateStatisticsRequest
         );
     }
 }

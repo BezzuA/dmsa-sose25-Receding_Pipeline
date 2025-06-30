@@ -97,7 +97,7 @@ public functional microservice com.parkandcharge.bookingservice.BookingService {
             @JavaSpring::_aspects.RequestParam
             sync in  end      : datetime,
 
-            sync out stations : BookingDomain::ChargingDto[]
+            sync out stations : BookingDomain::API.ChargingDto[]
         );
 
         ---                                          
@@ -108,9 +108,55 @@ public functional microservice com.parkandcharge.bookingservice.BookingService {
         @JavaSpring::_aspects.PostMapping
         bookStation(
             @JavaSpring::_aspects.RequestBody
-            sync in  request : BookingDomain::BookingRequestDto,
+            sync in  request : BookingDomain::API.BookingRequestDto,
 
             sync out booking : BookingDomain::Booking
+        );
+
+        @endpoints(Protocols::_protocols.rest: "/{id}/approve";)
+        @JavaSpring::_aspects.PostMapping
+        approveBooking(
+            @JavaSpring::_aspects.PathVariable
+            sync in  id      : long,
+
+            sync out booking : BookingDomain::Booking
+        );
+
+        /* ➍  Start booking */
+        @endpoints(Protocols::_protocols.rest: "/{id}/start";)
+        @JavaSpring::_aspects.PostMapping
+        startBooking(
+            @JavaSpring::_aspects.PathVariable
+            sync in  id      : long,
+
+            sync out booking : BookingDomain::Booking
+        );
+
+        /* Owner’s bookings */
+        @endpoints(Protocols::_protocols.rest: "/owner-bookings";)
+        @JavaSpring::_aspects.GetMapping
+        getBookingsForOwner(
+            @JavaSpring::_aspects.RequestParam
+            sync in  ownerId  : long,
+
+            sync out bookings : BookingDomain::Bookings
+        );
+
+        /*  Is station in use? */
+        @endpoints(Protocols::_protocols.rest: "/station/{stationId}/in-use";)
+        @JavaSpring::_aspects.GetMapping
+        isStationInUse(
+            @JavaSpring::_aspects.PathVariable
+            sync in  stationId : long,
+
+            sync out inUse     : boolean
+        );
+
+        /*  IDs of stations currently in use */
+        @endpoints(Protocols::_protocols.rest: "/in-use-station-ids";)
+        @JavaSpring::_aspects.GetMapping
+        getInUseStationIds(
+            sync out stationIds : BookingDomain::StationIds
         );
     }
 }

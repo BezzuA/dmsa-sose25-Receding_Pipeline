@@ -7,8 +7,8 @@ import technology from "../../technology/Protocols.technology"   as Protocols
 @sync(Protocols::_protocols.rest)
 public functional microservice com.parkandcharge.chargingservice.ChargingService {
 
-    // Base path: /stations
-    @endpoints(Protocols::_protocols.rest: "/stations";)
+    /* Base path now matches controller */
+    @endpoints(Protocols::_protocols.rest: "/api/charging";)
     interface Stations {
 
         --- 
@@ -81,6 +81,27 @@ public functional microservice com.parkandcharge.chargingservice.ChargingService
             @JavaSpring::_aspects.PathVariable
             sync in  ownerId  : long,
 
+            sync out stations : ChargingDomain::ChargingStationList
+        );
+
+        ---
+        IDs of stations owned by a user
+        @required ownerId
+        ---
+        @endpoints(Protocols::_protocols.rest: "/owner/charging-ids";)
+        @JavaSpring::_aspects.GetMapping
+        getChargingIdsByOwner(
+            @JavaSpring::_aspects.RequestParam
+            sync in  ownerId : long,
+            sync out ids     : ChargingDomain::ChargingStationIds
+        );
+
+         ---
+        Stations that are currently *not* in use
+        ---
+        @endpoints(Protocols::_protocols.rest: "/available";)
+        @JavaSpring::_aspects.GetMapping
+        getAvailableStations(
             sync out stations : ChargingDomain::ChargingStationList
         );
     }

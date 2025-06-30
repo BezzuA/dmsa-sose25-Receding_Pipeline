@@ -1,45 +1,40 @@
 context Booking {
-
-    // ------------------------------
-    // Aggregate root : Booking
-    // ------------------------------
-
-    // Entity
     structure Booking<aggregate, entity> {
-        // Id
-        // GeneratedValue(strategy = IDENTITY)
         long id<identifier>,
-
-        long userId,              // FK to User
-        long stationId,           // FK to ChargingStation
-
+        long userId,
+        long stationId,
         datetime startTime,
         datetime endTime,
-
         double amount,
-
-        // Enumerated(EnumType.STRING)
         BookingStatus status = BookingStatus.PENDING
     }
 
     enum BookingStatus {
         PENDING,
+        APPROVED,
+        IN_USE,
         COMPLETED,
-        CANCELLED
+        CANCELLED,
+        FAILED
     }
 
     collection Bookings { Booking b }
+    collection StationIds { long id }         
 
     structure BookingManagementService<service> {
-        function Bookings           getAllBookings(),
-        function Booking            getBooking(long id),
-        function Booking            createBooking(Booking booking),
-        procedure                  cancelBooking(long id),
-        function Booking            completeBooking(long id),
-        function Bookings           getBookingsByUserId(long userId),
-        function Bookings           getAvailableStations(datetime start,
-                                                         datetime end),
-        function Booking            bookStation
+        function Bookings  getAllBookings(),
+        function Booking   getBooking(long id),
+        function Booking   createBooking(Booking booking),
+        procedure          cancelBooking(long id),
+        function Booking   approveBooking(long id),
+        function Booking   startBooking(long id),
+        function Booking   completeBooking(long id),
+        function Bookings  getBookingsByUserId(long userId),
+        function Bookings  getAvailableStations(datetime start, datetime end),
+        function Booking   bookStation(API::BookingRequestDto request),
+        function Bookings  getBookingsByStationIds(StationIds ids),
+        function boolean   isStationInUse(long stationId),
+        procedure          autoUpdateBookingStatuses                
     }
 }
 

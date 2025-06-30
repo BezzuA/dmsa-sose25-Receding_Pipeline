@@ -148,5 +148,19 @@ public functional microservice com.parkandcharge.userservice.UserService {
             @JavaSpring::_aspects.RequestParam
             sync in amount : double
         );
+
+        ---
+        Add (credit) balance
+        @required userId, amount
+        ---
+        @endpoints(Protocols::_protocols.rest: "/{userId}/add";)
+        @JavaSpring::_aspects.PostMapping
+        addBalance(
+            @JavaSpring::_aspects.PathVariable
+            sync in userId : long,
+
+            @JavaSpring::_aspects.RequestParam
+            sync in amount : double
+        );
     }
 }

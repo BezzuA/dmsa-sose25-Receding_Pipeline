@@ -65,11 +65,11 @@ infrastructureNode GatewayService {
    Micro-service containers
    ------------------------------------------------------------------ */
 
-import microservices from "../microservices/booking/Booking.services"    as BookingSvc
-import microservices from "../microservices/charging/Charging.services"  as ChargingSvc
-import microservices from "../microservices/payment/Payment.services"    as PaymentSvc
-import microservices from "../microservices/statistics/Statistics.services" as StatsSvc
-import microservices from "../microservices/user/User.services"          as UserSvc
+import microservices from "../microservices/Booking.services"    as BookingSvc
+import microservices from "../microservices/Charging.services"  as ChargingSvc
+import microservices from "../microservices/Payment.services"    as PaymentSvc
+import microservices from "../microservices/Statistics.services" as StatsSvc
+import microservices from "../microservices/User.services"          as UserSvc
 
 /* === BookingService ================================================= */
 
